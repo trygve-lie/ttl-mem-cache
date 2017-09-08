@@ -1,0 +1,29 @@
+{
+  "name": "ttl-mem-cache",
+  "version": "1.0.0",
+  "description": "",
+  "main": "lib/cache.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "tap test/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/trygve-lie/ttl-mem-cache.git"
+  },
+  "keywords": [
+    "cache"
+  ],
+  "author": "Trygve Lie",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/trygve-lie/ttl-mem-cache/issues"
+  },
+  "homepage": "https://github.com/trygve-lie/ttl-mem-cache#readme",
+  "devDependencies": {
+    "lolex": "2.1.2",
+    "tap": "10.7.2"
+  }
+}
