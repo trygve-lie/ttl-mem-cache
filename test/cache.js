@@ -1,8 +1,39 @@
 'use strict';
 
-const tap = require('tap');
+const stream = require('readable-stream');
 const Cache = require('../');
 const lolex = require('lolex');
+const tap = require('tap');
+
+const srcStream = (arr) => {
+    return new stream.Readable({
+        objectMode : true,
+        read(n) {
+            arr.forEach((el) => {
+                this.push(el);
+            });
+            this.push(null);
+        }
+    });
+}
+
+const destStream = (done) => {
+    const arr = [];
+
+    const dStream = new stream.Writable({
+        objectMode : true,
+        write(chunk, encoding, callback) {
+            arr.push(chunk);
+            callback();
+        }
+    });
+
+    dStream.on('finish', () => {
+        done(arr);
+    });
+
+    return dStream;
+}
 
 
 
@@ -185,15 +216,12 @@ tap.test('cache.entries() - get all entries - should return all entries as an Ar
 
     t.equal(entries[0][0], 'a');
     t.equal(entries[0][1], 'bar');
-    t.equal(entries[0][2], 300000);
 
     t.equal(entries[1][0], 'b');
     t.equal(entries[1][1], 'foo');
-    t.equal(entries[1][2], 2000);
 
     t.equal(entries[2][0], 'c');
     t.equal(entries[2][1], 'xyz');
-    t.equal(entries[2][2], 300000);
 
     clock.uninstall();
     t.end();
@@ -259,8 +287,51 @@ tap.test('cache.entries() - call with mutator function - should mutate result', 
 
     t.equal(entries[0].key, 'a');
     t.equal(entries[0].value, 'bar');
-    t.equal(entries[0].timeout, 300000);
 
     clock.uninstall();
     t.end();
+});
+
+
+
+/**
+ * ._write() - Stream
+ */
+
+tap.test('_write() - pipe valid objects to cache - objects should be set in cache', t => {
+    const cache = new Cache();
+    const src = srcStream([{key:'a', value: 'foo'}, {key:'b', value: 'bar'}]);
+
+    src.on('end', () => {
+        t.equal(cache.get('a'), 'foo');
+        t.equal(cache.get('b'), 'bar');
+        t.end();
+    });
+
+    src.pipe(cache);
+});
+
+
+
+/**
+ * ._read() - Stream
+ */
+
+tap.test('_read() - pipe valid objects from cache - objects should be piped when set', t => {
+    const cache = new Cache();
+    const dest = destStream((arr) => {
+        t.equal(arr[0].key, 'a');
+        t.equal(arr[0].value, 'foo');
+        t.equal(arr[1].key, 'b');
+        t.equal(arr[1].value, 'bar');
+        t.end();
+    });
+
+    cache.pipe(dest);
+    cache.set('a', 'foo');
+    cache.set('b', 'bar');
+
+    setImmediate(() => {
+        dest.end();
+    });
 });

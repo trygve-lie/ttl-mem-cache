@@ -25,5 +25,8 @@
   "devDependencies": {
     "lolex": "2.1.2",
     "tap": "10.7.2"
+  },
+  "dependencies": {
+    "readable-stream": "^2.3.3"
   }
 }
