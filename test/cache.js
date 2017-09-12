@@ -312,6 +312,94 @@ tap.test('_write() - pipe valid objects to cache - objects should be set in cach
 });
 
 
+tap.test('_write() - pipe object without "value" - should remove object from cache', t => {
+    const cache = new Cache();
+    cache.set('a', 'bar');
+    cache.set('b', 'foo');
+    cache.set('c', 'xyz');
+    const src = srcStream([{key:'a'}]);
+
+    cache.on('dispose', (key) => {
+        t.equal(key, 'a');
+        t.equal(cache.get('a'), undefined);
+        t.end();
+    })
+
+    src.pipe(cache);
+});
+
+
+tap.test('_write() - pipe object where "value" is "null" - should remove object from cache', t => {
+    const cache = new Cache();
+    cache.set('a', 'bar');
+    cache.set('b', 'foo');
+    cache.set('c', 'xyz');
+    const src = srcStream([{key:'a', value: null}]);
+
+    cache.on('dispose', (key) => {
+        t.equal(key, 'a');
+        t.equal(cache.get('a'), undefined);
+        t.end();
+    })
+
+    src.pipe(cache);
+});
+
+
+tap.test('_write() - pipe object where "value" is "undefined" - should remove object from cache', t => {
+    const cache = new Cache();
+    cache.set('a', 'bar');
+    cache.set('b', 'foo');
+    cache.set('c', 'xyz');
+    const src = srcStream([{key:'a', value: undefined}]);
+
+    cache.on('dispose', (key) => {
+        t.equal(key, 'a');
+        t.equal(cache.get('a'), undefined);
+        t.end();
+    })
+
+    src.pipe(cache);
+});
+
+tap.test('_write() - pipe object without "key" - should emit error and not write object to cache', t => {
+    const cache = new Cache();
+    const src = srcStream([{id:'a', value: 'foo'}]);
+
+    cache.on('error', (error) => {
+        t.equal(error.message, 'Object does not contain a "key" property or the value for "key" is null or undefined');
+        t.equal(cache.get('a'), undefined);
+        t.end();
+    })
+
+    src.pipe(cache);
+});
+
+tap.test('_write() - pipe object where "key" is "null" - should emit error and not write object to cache', t => {
+    const cache = new Cache();
+    const src = srcStream([{key:null, value: 'foo'}]);
+
+    cache.on('error', (error) => {
+        t.equal(cache.get('a'), undefined);
+        t.end();
+    })
+
+    src.pipe(cache);
+});
+
+tap.test('_write() - pipe object where "key" is "undefined" - should emit error and not write object to cache', t => {
+    const cache = new Cache();
+    const src = srcStream([{key:undefined, value: 'foo'}]);
+
+    cache.on('error', (error) => {
+        t.equal(cache.get('a'), undefined);
+        t.end();
+    })
+
+    src.pipe(cache);
+});
+
+
 
 /**
  * ._read() - Stream
@@ -330,6 +418,35 @@ tap.test('_read() - pipe valid objects from cache - objects should be piped when
     cache.pipe(dest);
     cache.set('a', 'foo');
     cache.set('b', 'bar');
+
+    setImmediate(() => {
+        dest.end();
+    });
+});
+
+
+
+/**
+ * ._write().pipe(_read()) - Stream
+ */
+
+tap.test('._write().pipe(_read()) - pipe valid objects through cache - objects should be piped through and stored in cache', t => {
+    const cache = new Cache();
+    const src = srcStream([{key:'a', value: 'foo'}, {key:'b', value: 'bar'}, {key:'c', value: 'xyz'}]);
+    const dest = destStream((arr) => {
+        t.equal(arr[0].key, 'a');
+        t.equal(arr[0].value, 'foo');
+        t.equal(arr[1].key, 'b');
+        t.equal(arr[1].value, 'bar');
+        t.equal(arr[2].key, 'c');
+        t.equal(arr[2].value, 'xyz');
+        t.equal(cache.get('a'), 'foo');
+        t.equal(cache.get('b'), 'bar');
+        t.equal(cache.get('c'), 'xyz');
+        t.end();
+    });
+
+    src.pipe(cache).pipe(dest);
 
     setImmediate(() => {
         dest.end();
