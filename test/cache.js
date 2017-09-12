@@ -214,14 +214,14 @@ tap.test('cache.entries() - get all entries - should return all entries as an Ar
 
     const entries = cache.entries();
 
-    t.equal(entries[0][0], 'a');
-    t.equal(entries[0][1], 'bar');
+    t.equal(entries[0].key, 'a');
+    t.equal(entries[0].value, 'bar');
 
-    t.equal(entries[1][0], 'b');
-    t.equal(entries[1][1], 'foo');
+    t.equal(entries[1].key, 'b');
+    t.equal(entries[1].value, 'foo');
 
-    t.equal(entries[2][0], 'c');
-    t.equal(entries[2][1], 'xyz');
+    t.equal(entries[2].key, 'c');
+    t.equal(entries[2].value, 'xyz');
 
     clock.uninstall();
     t.end();
@@ -275,18 +275,15 @@ tap.test('cache.entries() - call with mutator function - should mutate result', 
     cache.set('b', 'foo', 2 * 1000);
     cache.set('c', 'xyz');
 
-    const entries = cache.entries((key, value, timeout) => {
-        return {
-            key,
-            value,
-            timeout
-        };
+    const entries = cache.entries((obj) => {
+        return obj.value;
     });
 
     t.equal(entries.length, 3);
 
-    t.equal(entries[0].key, 'a');
-    t.equal(entries[0].value, 'bar');
+    t.equal(entries[0], 'bar');
+    t.equal(entries[1], 'foo');
+    t.equal(entries[2], 'xyz');
 
     clock.uninstall();
     t.end();
