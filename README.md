@@ -193,6 +193,91 @@ cache.del('a');
 
 
 
+## Streams
+
+The Cache instance is a [Duplex Stream](https://nodejs.org/api/stream.html#stream_duplex_and_transform_streams). One can stream
+items in and out of the cache.
+
+Example of streaming into the cache:
+
+```js
+const cache = new Cache();
+const source = new SomeReadableStream();  // a source streaming an item on key 'a' into the cache
+
+source.pipe(cache);
+
+cache.get('a');  // returns the item for key 'a'
+```
+
+Example of streaming out of the cache:
+
+```js
+const cache = new Cache();
+const dest = new SomeWritableStream();  // a destination stream recieving items from the cache
+
+cache.pipe(dest);
+
+cache.set('a', {foo: 'bar'});  // pushes {foo: 'bar'} onto the writable stream
+```
+
+Example of streaming through the cache (all items streamed through will be kept in the cache):
+
+```js
+const cache = new Cache();
+const source = new SomeReadableStream();  // a source streaming items into the cache
+const dest = new SomeWritableStream();  // a destination stream recieving items from the cache
+
+source.pipe(cache).pipe(dest);
+
+cache.entries();  // returns all the items streamed through the cache
+```
+
+### Streaming Object type
+
+When writing to the cache, one can control what goes into the cache etc by a dedicated Object type. When reading from the cache, the stream will output the same Object type.
+
+The Object type looks like this:
+
+```js
+{
+    key: 'item key',
+    value: 'item value'
+}
+```
+
+`key` defines what key the value of `value` should be stored on in the cache. `key` is required
+and if not provided the stream will emit an error.
+
+When writing to the cache and a Object with `value` with a value is provided, it will be stored in
+the cache on the provided `key`. If `value` is not provided or `null` or `undefined` on the
+Object when writing to the cache, any item with a matching `key` in the cache will be deleted.
+
+If the items you want to store in the cache does not fit your data type, its recommended to use
+a [Transform Stream](https://nodejs.org/api/stream.html#stream_implementing_a_transform_stream)
+to transform it into the supported Object type.
+
+Example:
+
+```js
+const cache = new Cache();
+const source = new SomeReadableStream();  // contains Objects like this {id: 'a', item: 'bar'}
+
+const convert = new stream.Transform({
+    objectMode: true,
+    transform(obj, encoding, callback) {
+        this.push({
+            key: obj.id,
+            value: obj.item
+        });
+        callback();
+    }
+});
+
+source.pipe(convert).pipe(cache);
+```
+
+
+
 ## node.js compabillity
 
 This module use some native ES6 functions only found in node.js 4.8.x and newer.
