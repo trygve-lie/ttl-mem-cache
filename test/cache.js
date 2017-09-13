@@ -449,3 +449,25 @@ tap.test('._write().pipe(_read()) - pipe valid objects through cache - objects s
         dest.end();
     });
 });
+
+
+
+/**
+ * ._validate()
+ */
+
+tap.test('_validate() - empty argument - should return false', t => {
+    t.equal(Cache._validate(), false);
+    t.end();
+});
+
+tap.test('_validate() - expires is behind Date.now() - should return false', t => {
+    t.equal(Cache._validate({ expires: 1330210800000 }), false);
+    t.end();
+});
+
+tap.test('_validate() - expires is in front of Date.now() - should return true', t => {
+    const expires = Date.now() + 100000;
+    t.equal(Cache._validate({ expires }), true);
+    t.end();
+});
