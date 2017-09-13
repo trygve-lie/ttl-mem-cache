@@ -23,10 +23,11 @@
   },
   "homepage": "https://github.com/trygve-lie/ttl-mem-cache#readme",
   "devDependencies": {
+    "benchmark": "2.1.4",
     "lolex": "2.1.2",
     "tap": "10.7.2"
   },
   "dependencies": {
-    "readable-stream": "^2.3.3"
+    "readable-stream": "2.3.3"
   }
 }
