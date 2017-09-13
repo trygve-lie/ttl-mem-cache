@@ -158,7 +158,38 @@ is applied to each item in the same process as the expire is checked.
 
 ## Events
 
-The Cache instance emit the following events:
+The Cache instance inherit from Duplex Stream. Due to this the instance emits all the
+events which Duplex Stream does when the streaming feature is used. Please see the
+[documentation of Duplex Streams](https://nodejs.org/api/stream.html#stream_duplex_and_transform_streams)
+for further documentation.
+
+In addition to this, the following events are emitted:
+
+
+### set
+
+When an item is set in the cache. Emits an Object with the `key` and `value` of the item.
+
+```js
+const cache = new Cache();
+cache.on('set', (item) => {
+    console.log(item);  // outputs: {key: 'a', value: {foo: 'bar'}}
+});
+cache.set('a', {foo: 'bar'});
+```
+
+### dispose
+
+When an item is disposed (deleted) from the cache. Emits the `key` of the item.
+
+```js
+const cache = new Cache();
+cache.on('dispose', (key) => {
+    console.log(key);  // outputs: 'a'
+});
+cache.set('a', {foo: 'bar'});
+cache.del('a');
+```
 
 
 
