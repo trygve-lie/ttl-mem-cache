@@ -280,8 +280,8 @@ source.pipe(convert).pipe(cache);
 
 ## node.js compabillity
 
-This module use some native ES6 functions only found in node.js 4.8.x and newer.
-This module will not function with older than 4.8.x versions of node.js.
+This module use some native ES6 functions only found in node.js 6.x and newer.
+This module will not function with older than 6.x versions of node.js.
 
 
 
