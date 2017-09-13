@@ -462,7 +462,8 @@ tap.test('_validate() - empty argument - should return false', t => {
 });
 
 tap.test('_validate() - expires is behind Date.now() - should return false', t => {
-    t.equal(Cache._validate({ expires: 1330210800000 }), false);
+    const expires = Date.now() - 100000;
+    t.equal(Cache._validate({ expires }), false);
     t.end();
 });
 
