@@ -60,8 +60,16 @@ add('.entries()', () => {
     cache3.entries();
 });
 
+
+const cache4 = new Cache();
+let cache4Counter = 0;
+
+for (let i = 0; i < 10000; i++) {
+    cache4.set('key' + i, 'value');
+}
+
 add('.entries(() => {})', () => {
-    cache3.entries((item) => {
+    cache4.entries((item) => {
         return item.value;
     });
 });
