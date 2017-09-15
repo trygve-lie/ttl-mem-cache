@@ -114,11 +114,11 @@ tap.test('cache.set() - with maxAge - should set maxAge', t => {
     t.end();
 });
 
-tap.test('cache.set() - call twice with different values - should cache value of first set', t => {
+tap.test('cache.set() - call twice with different values - should cache value of the last set', t => {
     const cache = new Cache();
     cache.set('foo', 'bar');
     cache.set('foo', 'xyz');
-    t.equal(cache.store.get('foo').value, 'bar');
+    t.equal(cache.store.get('foo').value, 'xyz');
     t.end();
 });
 
