@@ -7,21 +7,21 @@ const tap = require('tap');
 
 const srcStream = (arr) => {
     return new stream.Readable({
-        objectMode : true,
-        read(n) {
+        objectMode: true,
+        read() {
             arr.forEach((el) => {
                 this.push(el);
             });
             this.push(null);
         }
     });
-}
+};
 
 const destStream = (done) => {
     const arr = [];
 
     const dStream = new stream.Writable({
-        objectMode : true,
+        objectMode: true,
         write(chunk, encoding, callback) {
             arr.push(chunk);
             callback();
@@ -33,7 +33,7 @@ const destStream = (done) => {
     });
 
     return dStream;
-}
+};
 
 
 
@@ -41,13 +41,13 @@ const destStream = (done) => {
  * Constructor
  */
 
-tap.test('cache() - without maxAge - should set default maxAge', t => {
+tap.test('cache() - without maxAge - should set default maxAge', (t) => {
     const cache = new Cache();
     t.equal(cache.maxAge, (5 * 60 * 1000));
     t.end();
 });
 
-tap.test('cache() - with maxAge - should set default maxAge', t => {
+tap.test('cache() - with maxAge - should set default maxAge', (t) => {
     const maxAge = (60 * 60 * 1000);
     const cache = new Cache({ maxAge });
     t.equal(cache.maxAge, maxAge);
@@ -60,7 +60,7 @@ tap.test('cache() - with maxAge - should set default maxAge', t => {
  * .set()
  */
 
-tap.test('cache.set() - without key - should throw', t => {
+tap.test('cache.set() - without key - should throw', (t) => {
     const cache = new Cache();
     t.throws(() => {
         cache.set();
@@ -68,7 +68,7 @@ tap.test('cache.set() - without key - should throw', t => {
     t.end();
 });
 
-tap.test('cache.set() - without value - should throw', t => {
+tap.test('cache.set() - without value - should throw', (t) => {
     const cache = new Cache();
     t.throws(() => {
         cache.set('foo');
@@ -76,21 +76,21 @@ tap.test('cache.set() - without value - should throw', t => {
     t.end();
 });
 
-tap.test('cache.set() - with key and value - should return the set value', t => {
+tap.test('cache.set() - with key and value - should return the set value', (t) => {
     const cache = new Cache();
     const result = cache.set('foo', 'bar');
     t.equal(result, 'bar');
     t.end();
 });
 
-tap.test('cache.set() - with key and value - should set value on key in storage', t => {
+tap.test('cache.set() - with key and value - should set value on key in storage', (t) => {
     const cache = new Cache();
     cache.set('foo', 'bar');
     t.equal(cache.store.get('foo').value, 'bar');
     t.end();
 });
 
-tap.test('cache.set() - without maxAge - should set default maxAge', t => {
+tap.test('cache.set() - without maxAge - should set default maxAge', (t) => {
     const clock = lolex.install();
     clock.tick(100000);
 
@@ -102,7 +102,7 @@ tap.test('cache.set() - without maxAge - should set default maxAge', t => {
     t.end();
 });
 
-tap.test('cache.set() - with maxAge - should set maxAge', t => {
+tap.test('cache.set() - with maxAge - should set maxAge', (t) => {
     const clock = lolex.install();
     clock.tick(100000);
 
@@ -114,7 +114,7 @@ tap.test('cache.set() - with maxAge - should set maxAge', t => {
     t.end();
 });
 
-tap.test('cache.set() - call twice with different values - should cache value of the last set', t => {
+tap.test('cache.set() - call twice with different values - should cache value of the last set', (t) => {
     const cache = new Cache();
     cache.set('foo', 'bar');
     cache.set('foo', 'xyz');
@@ -129,14 +129,14 @@ tap.test('cache.set() - call twice with different values - should cache value of
  * .get()
  */
 
-tap.test('cache.get() - get set value - should return set value', t => {
+tap.test('cache.get() - get set value - should return set value', (t) => {
     const cache = new Cache();
     cache.set('foo', 'bar');
     t.equal(cache.get('foo'), 'bar');
     t.end();
 });
 
-tap.test('cache.get() - get value until timeout - should return value until timeout', t => {
+tap.test('cache.get() - get value until timeout - should return value until timeout', (t) => {
     const clock = lolex.install();
     const cache = new Cache({ maxAge: 2 * 1000 });
 
@@ -156,7 +156,7 @@ tap.test('cache.get() - get value until timeout - should return value until time
     t.end();
 });
 
-tap.test('cache.get() - get value until timeout - should emit dispose event on timeout', t => {
+tap.test('cache.get() - get value until timeout - should emit dispose event on timeout', (t) => {
     const clock = lolex.install();
 
     const cache = new Cache({ maxAge: 2 * 1000 });
@@ -179,7 +179,7 @@ tap.test('cache.get() - get value until timeout - should emit dispose event on t
  * .del()
  */
 
-tap.test('cache.del() - remove set value - should remove value', t => {
+tap.test('cache.del() - remove set value - should remove value', (t) => {
     const cache = new Cache();
     cache.set('foo', 'bar');
     cache.del('foo');
@@ -187,7 +187,7 @@ tap.test('cache.del() - remove set value - should remove value', t => {
     t.end();
 });
 
-tap.test('cache.del() - remove set value - should emit dispose event on removal', t => {
+tap.test('cache.del() - remove set value - should emit dispose event on removal', (t) => {
     const cache = new Cache();
     cache.on('dispose', (key) => {
         t.equal(key, 'foo');
@@ -204,7 +204,7 @@ tap.test('cache.del() - remove set value - should emit dispose event on removal'
  * .entries()
  */
 
-tap.test('cache.entries() - get all entries - should return all entries as an Array', t => {
+tap.test('cache.entries() - get all entries - should return all entries as an Array', (t) => {
     const clock = lolex.install();
 
     const cache = new Cache();
@@ -227,7 +227,7 @@ tap.test('cache.entries() - get all entries - should return all entries as an Ar
     t.end();
 });
 
-tap.test('cache.entries() - get all entries until timeout - should not return purged entries', t => {
+tap.test('cache.entries() - get all entries until timeout - should not return purged entries', (t) => {
     const clock = lolex.install();
 
     const cache = new Cache();
@@ -247,7 +247,7 @@ tap.test('cache.entries() - get all entries until timeout - should not return pu
     t.end();
 });
 
-tap.test('cache.entries() - get all entries until timeout - should emit dispose event on timeout', t => {
+tap.test('cache.entries() - get all entries until timeout - should emit dispose event on timeout', (t) => {
     const clock = lolex.install();
 
     const cache = new Cache();
@@ -267,7 +267,7 @@ tap.test('cache.entries() - get all entries until timeout - should emit dispose 
     clock.uninstall();
 });
 
-tap.test('cache.entries() - call with mutator function - should mutate result', t => {
+tap.test('cache.entries() - call with mutator function - should mutate result', (t) => {
     const clock = lolex.install();
 
     const cache = new Cache();
@@ -295,9 +295,9 @@ tap.test('cache.entries() - call with mutator function - should mutate result', 
  * ._write() - Stream
  */
 
-tap.test('_write() - pipe valid objects to cache - objects should be set in cache', t => {
+tap.test('_write() - pipe valid objects to cache - objects should be set in cache', (t) => {
     const cache = new Cache();
-    const src = srcStream([{key:'a', value: 'foo'}, {key:'b', value: 'bar'}]);
+    const src = srcStream([{ key: 'a', value: 'foo' }, { key: 'b', value: 'bar' }]);
 
     src.on('end', () => {
         t.equal(cache.get('a'), 'foo');
@@ -309,89 +309,89 @@ tap.test('_write() - pipe valid objects to cache - objects should be set in cach
 });
 
 
-tap.test('_write() - pipe object without "value" - should remove object from cache', t => {
+tap.test('_write() - pipe object without "value" - should remove object from cache', (t) => {
     const cache = new Cache();
     cache.set('a', 'bar');
     cache.set('b', 'foo');
     cache.set('c', 'xyz');
-    const src = srcStream([{key:'a'}]);
+    const src = srcStream([{ key: 'a' }]);
 
     cache.on('dispose', (key) => {
         t.equal(key, 'a');
         t.equal(cache.get('a'), undefined);
         t.end();
-    })
+    });
 
     src.pipe(cache);
 });
 
 
-tap.test('_write() - pipe object where "value" is "null" - should remove object from cache', t => {
+tap.test('_write() - pipe object where "value" is "null" - should remove object from cache', (t) => {
     const cache = new Cache();
     cache.set('a', 'bar');
     cache.set('b', 'foo');
     cache.set('c', 'xyz');
-    const src = srcStream([{key:'a', value: null}]);
+    const src = srcStream([{ key: 'a', value: null }]);
 
     cache.on('dispose', (key) => {
         t.equal(key, 'a');
         t.equal(cache.get('a'), undefined);
         t.end();
-    })
+    });
 
     src.pipe(cache);
 });
 
 
-tap.test('_write() - pipe object where "value" is "undefined" - should remove object from cache', t => {
+tap.test('_write() - pipe object where "value" is "undefined" - should remove object from cache', (t) => {
     const cache = new Cache();
     cache.set('a', 'bar');
     cache.set('b', 'foo');
     cache.set('c', 'xyz');
-    const src = srcStream([{key:'a', value: undefined}]);
+    const src = srcStream([{ key: 'a', value: undefined }]);
 
     cache.on('dispose', (key) => {
         t.equal(key, 'a');
         t.equal(cache.get('a'), undefined);
         t.end();
-    })
+    });
 
     src.pipe(cache);
 });
 
-tap.test('_write() - pipe object without "key" - should emit error and not write object to cache', t => {
+tap.test('_write() - pipe object without "key" - should emit error and not write object to cache', (t) => {
     const cache = new Cache();
-    const src = srcStream([{id:'a', value: 'foo'}]);
+    const src = srcStream([{ id: 'a', value: 'foo' }]);
 
     cache.on('error', (error) => {
         t.equal(error.message, 'Object does not contain a "key" property or the value for "key" is null or undefined');
         t.equal(cache.get('a'), undefined);
         t.end();
-    })
+    });
 
     src.pipe(cache);
 });
 
-tap.test('_write() - pipe object where "key" is "null" - should emit error and not write object to cache', t => {
+tap.test('_write() - pipe object where "key" is "null" - should emit error and not write object to cache', (t) => {
     const cache = new Cache();
-    const src = srcStream([{key:null, value: 'foo'}]);
+    const src = srcStream([{ key: null, value: 'foo' }]);
 
-    cache.on('error', (error) => {
+    cache.on('error', () => {
         t.equal(cache.get('a'), undefined);
         t.end();
-    })
+    });
 
     src.pipe(cache);
 });
 
-tap.test('_write() - pipe object where "key" is "undefined" - should emit error and not write object to cache', t => {
+tap.test('_write() - pipe object where "key" is "undefined" - should emit error and not write object to cache', (t) => {
     const cache = new Cache();
-    const src = srcStream([{key:undefined, value: 'foo'}]);
+    const src = srcStream([{ key: undefined, value: 'foo' }]);
 
-    cache.on('error', (error) => {
+    cache.on('error', () => {
         t.equal(cache.get('a'), undefined);
         t.end();
-    })
+    });
 
     src.pipe(cache);
 });
@@ -402,7 +402,7 @@ tap.test('_write() - pipe object where "key" is "undefined" - should emit error 
  * ._read() - Stream
  */
 
-tap.test('_read() - pipe valid objects from cache - objects should be piped when set', t => {
+tap.test('_read() - pipe valid objects from cache - objects should be piped when set', (t) => {
     const cache = new Cache();
     const dest = destStream((arr) => {
         t.equal(arr[0].key, 'a');
@@ -427,9 +427,9 @@ tap.test('_read() - pipe valid objects from cache - objects should be piped when
  * ._write().pipe(_read()) - Stream
  */
 
-tap.test('._write().pipe(_read()) - pipe valid objects through cache - objects should be piped through and stored in cache', t => {
+tap.test('._write().pipe(_read()) - pipe valid objects through cache - objects should be piped through and stored in cache', (t) => {
     const cache = new Cache();
-    const src = srcStream([{key:'a', value: 'foo'}, {key:'b', value: 'bar'}, {key:'c', value: 'xyz'}]);
+    const src = srcStream([{ key: 'a', value: 'foo' }, { key: 'b', value: 'bar' }, { key: 'c', value: 'xyz' }]);
     const dest = destStream((arr) => {
         t.equal(arr[0].key, 'a');
         t.equal(arr[0].value, 'foo');
@@ -456,18 +456,18 @@ tap.test('._write().pipe(_read()) - pipe valid objects through cache - objects s
  * ._validate()
  */
 
-tap.test('_validate() - empty argument - should return false', t => {
+tap.test('_validate() - empty argument - should return false', (t) => {
     t.equal(Cache._validate(), false);
     t.end();
 });
 
-tap.test('_validate() - expires is behind Date.now() - should return false', t => {
+tap.test('_validate() - expires is behind Date.now() - should return false', (t) => {
     const expires = Date.now() - 100000;
     t.equal(Cache._validate({ expires }), false);
     t.end();
 });
 
-tap.test('_validate() - expires is in front of Date.now() - should return true', t => {
+tap.test('_validate() - expires is in front of Date.now() - should return true', (t) => {
     const expires = Date.now() + 100000;
     t.equal(Cache._validate({ expires }), true);
     t.end();

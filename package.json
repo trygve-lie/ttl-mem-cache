@@ -7,8 +7,9 @@
     "lib": "lib"
   },
   "scripts": {
+    "bench": "node benchmark/cache.js",
     "test": "tap test/*.js",
-    "bench": "node benchmark/cache.js"
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",
@@ -27,6 +28,9 @@
   },
   "homepage": "https://github.com/trygve-lie/ttl-mem-cache#readme",
   "devDependencies": {
+    "eslint": "4.7.0",
+    "eslint-config-airbnb-base": "12.0.0",
+    "eslint-plugin-import": "2.7.0",
     "benchmark": "2.1.4",
     "lolex": "2.1.2",
     "tap": "10.7.2"
