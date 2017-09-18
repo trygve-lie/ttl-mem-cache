@@ -74,6 +74,22 @@ add('.entries(() => {})', () => {
 
 
 
+/**
+ * .prune()
+ */
+
+const cache5 = new Cache();
+
+for (let i = 0; i < 10000; i++) {
+    cache5.set(`key${i}`, 'value');
+}
+
+add('.prune()', () => {
+    cache5.prune();
+});
+
+
+
 suite
     .on('cycle', (event) => {
         console.log(event.target.toString());
