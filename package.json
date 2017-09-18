@@ -1,7 +1,7 @@
 {
   "name": "ttl-mem-cache",
   "version": "1.0.0",
-  "description": "",
+  "description": "A in memory time to live cache with streaming support.",
   "main": "lib/cache.js",
   "directories": {
     "lib": "lib"
@@ -15,7 +15,10 @@
     "url": "git+ssh://git@github.com/trygve-lie/ttl-mem-cache.git"
   },
   "keywords": [
-    "cache"
+    "cache",
+    "ttl",
+    "time to live",
+    "performance"
   ],
   "author": "Trygve Lie",
   "license": "MIT",
