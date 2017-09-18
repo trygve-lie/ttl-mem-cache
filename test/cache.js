@@ -205,8 +205,6 @@ tap.test('cache.del() - remove set value - should emit dispose event on removal'
  */
 
 tap.test('cache.entries() - get all entries - should return all entries as an Array', (t) => {
-    const clock = lolex.install();
-
     const cache = new Cache();
     cache.set('a', 'bar');
     cache.set('b', 'foo', 2 * 1000);
@@ -223,7 +221,6 @@ tap.test('cache.entries() - get all entries - should return all entries as an Ar
     t.equal(entries[2].key, 'c');
     t.equal(entries[2].value, 'xyz');
 
-    clock.uninstall();
     t.end();
 });
 
@@ -268,8 +265,6 @@ tap.test('cache.entries() - get all entries until timeout - should emit dispose 
 });
 
 tap.test('cache.entries() - call with mutator function - should mutate result', (t) => {
-    const clock = lolex.install();
-
     const cache = new Cache();
     cache.set('a', 'bar');
     cache.set('b', 'foo', 2 * 1000);
@@ -285,7 +280,6 @@ tap.test('cache.entries() - call with mutator function - should mutate result', 
     t.equal(entries[1], 'foo');
     t.equal(entries[2], 'xyz');
 
-    clock.uninstall();
     t.end();
 });
 
