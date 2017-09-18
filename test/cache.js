@@ -292,6 +292,32 @@ tap.test('cache.entries() - call with mutator function - should mutate result', 
 
 
 /**
+ * .prune()
+ */
+
+tap.test('cache.prune() - prune all entries - should remove expired items', (t) => {
+    const clock = lolex.install();
+
+    const cache = new Cache();
+    cache.set('a', 'bar', 1000);
+    cache.set('b', 'foo', 5000);
+    cache.set('c', 'xyz', 1000);
+
+    clock.tick(3000);
+
+    cache.prune();
+
+    t.equal(cache.get('a'), undefined);
+    t.equal(cache.get('b'), 'foo');
+    t.equal(cache.get('c'), undefined);
+
+    clock.uninstall();
+    t.end();
+});
+
+
+
+/**
  * ._write() - Stream
  */
 

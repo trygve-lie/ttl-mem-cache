@@ -155,6 +155,11 @@ The advantage of using the mutator if one want to mutate the items is that the m
 is applied to each item in the same process as the expire is checked.
 
 
+### .prune()
+
+Iterates over all items in the cache and proactively prunes expired items.
+
+
 
 ## Events
 
