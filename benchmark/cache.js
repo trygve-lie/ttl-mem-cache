@@ -28,7 +28,7 @@ let cache2Counter = 0;
 
 add('cache().set(maxAge)', () => {
     const i = cache2Counter++;
-    cache1.set(i, 'value', 3600000);
+    cache2.set(i, 'value', 3600000);
 });
 
 
