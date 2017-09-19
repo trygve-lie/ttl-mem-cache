@@ -146,10 +146,10 @@ tap.test('cache.get() - get value until timeout - should return value until time
     cache.set(key, value);
     t.equal(cache.get(key), value);
 
-    clock.tick(1500);
+    clock.tick(1000);
     t.equal(cache.get(key), value);
 
-    clock.tick(1000);
+    clock.tick(3000);
     t.equal(cache.get(key), undefined);
     clock.uninstall();
 
@@ -171,6 +171,25 @@ tap.test('cache.get() - get value until timeout - should emit dispose event on t
     cache.get('foo');
 
     clock.uninstall();
+});
+
+tap.test('cache.get() - cache set to return stale items - should return item once after timeout', (t) => {
+    const clock = lolex.install();
+    const cache = new Cache({ maxAge: 2 * 1000, stale: true });
+
+    const key = 'foo';
+    const value = 'bar';
+
+    cache.set(key, value);
+    t.equal(cache.get(key), value);
+
+    clock.tick(3000);
+    t.equal(cache.get(key), value);
+
+    t.equal(cache.get(key), undefined);
+    clock.uninstall();
+
+    t.end();
 });
 
 
@@ -212,14 +231,9 @@ tap.test('cache.entries() - get all entries - should return all entries as an Ar
 
     const entries = cache.entries();
 
-    t.equal(entries[0].key, 'a');
-    t.equal(entries[0].value, 'bar');
-
-    t.equal(entries[1].key, 'b');
-    t.equal(entries[1].value, 'foo');
-
-    t.equal(entries[2].key, 'c');
-    t.equal(entries[2].value, 'xyz');
+    t.equal(entries[0], 'bar');
+    t.equal(entries[1], 'foo');
+    t.equal(entries[2], 'xyz');
 
     t.end();
 });
@@ -270,16 +284,39 @@ tap.test('cache.entries() - call with mutator function - should mutate result', 
     cache.set('b', 'foo', 2 * 1000);
     cache.set('c', 'xyz');
 
-    const entries = cache.entries((obj) => {
-        return obj.value;
+    const entries = cache.entries((value) => {
+        return `prefix-${value}`;
     });
 
     t.equal(entries.length, 3);
 
-    t.equal(entries[0], 'bar');
-    t.equal(entries[1], 'foo');
-    t.equal(entries[2], 'xyz');
+    t.equal(entries[0], 'prefix-bar');
+    t.equal(entries[1], 'prefix-foo');
+    t.equal(entries[2], 'prefix-xyz');
 
+    t.end();
+});
+
+tap.test('cache.entries() - cache set to return stale items - purged items should be returned once', (t) => {
+    const clock = lolex.install();
+
+    const cache = new Cache({ stale: true });
+    cache.set('a', 'bar');
+    cache.set('b', 'foo', 2 * 1000);
+    cache.set('c', 'xyz');
+
+    const entries1 = cache.entries();
+    t.equal(entries1.length, 3);
+
+    clock.tick(3000);
+
+    const entries2 = cache.entries();
+    t.equal(entries2.length, 3);
+
+    const entries3 = cache.entries();
+    t.equal(entries3.length, 2);
+
+    clock.uninstall();
     t.end();
 });
 

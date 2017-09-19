@@ -55,10 +55,17 @@ const cache = new Cache(options);
 
 An Object containing misc configuration. The following values can be provided:
 
- * maxAge - Default max age in milliseconds all items in the cache should be cached before expiering
+ * maxAge - `Number` - Default max age in milliseconds all items in the cache should be cached before expiering
+ * stale - `Boolean` - If expired items in cache should be returned when pruned from the cache. Default: `false`.
 
 If an option Object with a `maxAge` is not provided all items in the cache will by
 default cached for 5 minutes before they expire.
+
+Pruning of items from the cache happend when they are touched by one of the methods
+for retrieving items from the cache. By default pruning happens before the method
+returns a value so if an item have expired, `undefined` will be returned for expired
+items. By setting `stale` to `true`, these methods will return the pruned item(s)
+before they are removed from the cache.
 
 
 
@@ -100,7 +107,8 @@ This method take the following arguments:
 
 Triggering `.get()` will check the expire on the item. If the item is older than
 the max age set on it, the item will be removed from the cache and this method
-will return `undefined`.
+will return `undefined` unless `stale` is set to `true` on the constructor. Then
+the expired item will be returned before its removed from the cache.
 
 
 ### .del(key)
@@ -128,6 +136,11 @@ cache.set('a', {foo: 'bar'});
 cache.set('b', {foo: 'xyz'});
 const all = cache.entries(); // returns [{foo: 'bar'}, {foo: 'xyz'}]
 ```
+
+Triggering `.entries()` will check the expire on the items. If an item is older than
+the max age set on it, the item will be removed from the cache and it will not be
+included in the returned value of this methid unless `stale` is set to `true` on the
+constructor. Then the expired item will be included before its removed from the cache.
 
 This method take the following arguments:
 
