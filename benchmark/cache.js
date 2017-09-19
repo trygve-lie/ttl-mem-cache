@@ -18,12 +18,17 @@ const add = (name, fn) => {
 const cache1 = new Cache();
 let cache1Counter = 0;
 
-add('.set()', () => {
-    cache1.set(`key${cache1Counter++}`, 'value');
+add('cache().set()', () => {
+    const i = cache1Counter++;
+    cache1.set(i, 'value');
 });
 
-add('.set(maxAge)', () => {
-    cache1.set(`key${cache1Counter++}`, 'value', 3600000);
+const cache2 = new Cache();
+let cache2Counter = 0;
+
+add('cache().set(maxAge)', () => {
+    const i = cache2Counter++;
+    cache1.set(i, 'value', 3600000);
 });
 
 
@@ -32,15 +37,16 @@ add('.set(maxAge)', () => {
  * .get()
  */
 
-const cache2 = new Cache();
-let cache2Counter = 0;
+const cache3 = new Cache();
+let cache3Counter = 0;
 
 for (let i = 0; i < 10000; i++) {
-    cache2.set(`key${i}`, 'value');
+    cache3.set(i, `value${i}`);
 }
 
-add('.get()', () => {
-    cache2.get(`key${(cache2Counter++) % 10000}`);
+add('cache().get()', () => {
+    const i = cache3Counter++ % 10000;
+    cache3.get(i);
 });
 
 
@@ -49,26 +55,26 @@ add('.get()', () => {
  * .entries()
  */
 
-const cache3 = new Cache();
-
-for (let i = 0; i < 10000; i++) {
-    cache3.set(`key${i}`, 'value');
-}
-
-add('.entries()', () => {
-    cache3.entries();
-});
-
-
 const cache4 = new Cache();
 
 for (let i = 0; i < 10000; i++) {
-    cache4.set(`key${i}`, 'value');
+    cache4.set(i, 'value');
 }
 
-add('.entries(() => {})', () => {
-    cache4.entries((item) => {
-        return item.value;
+add('cache().entries()', () => {
+    cache4.entries();
+});
+
+
+const cache5 = new Cache();
+
+for (let i = 0; i < 10000; i++) {
+    cache5.set(i, 'value');
+}
+
+add('cache().entries(() => {})', () => {
+    cache5.entries((item) => {
+        return item;
     });
 });
 
@@ -78,14 +84,14 @@ add('.entries(() => {})', () => {
  * .prune()
  */
 
-const cache5 = new Cache();
+const cache6 = new Cache();
 
 for (let i = 0; i < 10000; i++) {
-    cache5.set(`key${i}`, 'value');
+    cache6.set(i, 'value');
 }
 
-add('.prune()', () => {
-    cache5.prune();
+add('cache().prune()', () => {
+    cache6.prune();
 });
 
 
