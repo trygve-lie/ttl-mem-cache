@@ -349,6 +349,38 @@ tap.test('cache.prune() - prune all entries - should remove expired items', (t) 
 
 
 /**
+ * .clear()
+ */
+
+tap.test('cache.clear() - clear cache - should empty cache', (t) => {
+    const cache = new Cache();
+    cache.set('a', 'bar');
+    cache.set('b', 'foo');
+
+    cache.clear();
+
+    t.equal(cache.get('a'), undefined);
+    t.equal(cache.get('b'), undefined);
+
+    t.end();
+});
+
+tap.test('cache.clear() - clear cache - should emit "clear" event', (t) => {
+    const cache = new Cache();
+    cache.on('clear', () => {
+        t.equal(cache.get('a'), undefined);
+        t.equal(cache.get('b'), undefined);
+        t.end();
+    });
+
+    cache.set('a', 'bar');
+    cache.set('b', 'foo');
+
+    cache.clear();
+});
+
+
+/**
  * ._write() - Stream
  */
 

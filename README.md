@@ -173,6 +173,12 @@ is applied to each item in the same process as the expire is checked.
 Iterates over all items in the cache and proactively prunes expired items.
 
 
+### .clear()
+
+Clears the entire cache. All items will be deleted.
+
+
+
 
 ## Events
 
@@ -208,6 +214,10 @@ cache.on('dispose', (key) => {
 cache.set('a', {foo: 'bar'});
 cache.del('a');
 ```
+
+### clear
+
+When the cache is cleared.
 
 
 
