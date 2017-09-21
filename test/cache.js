@@ -542,6 +542,26 @@ tap.test('._write().pipe(_read()) - pipe valid objects through cache - objects s
 
 
 /**
+ * ._calculateExpire()
+ */
+
+tap.test('_calculateExpire() - "maxAge" is Infinity - should return Infinity', (t) => {
+    t.equal(Cache._calculateExpire(Infinity), Infinity);
+    t.end();
+});
+
+tap.test('_calculateExpire() - "maxAge" is a number - should return now timestamp plus the number', (t) => {
+    const clock = lolex.install({ now: 2000 });
+
+    t.equal(Cache._calculateExpire(2000), 4000);
+
+    clock.uninstall();
+    t.end();
+});
+
+
+
+/**
  * ._validate()
  */
 
@@ -550,13 +570,19 @@ tap.test('_validate() - empty argument - should return false', (t) => {
     t.end();
 });
 
-tap.test('_validate() - expires is behind Date.now() - should return false', (t) => {
+tap.test('_validate() - "expires" is Infinity - should return false', (t) => {
+    const expires = Infinity;
+    t.equal(Cache._validate({ expires }), false);
+    t.end();
+});
+
+tap.test('_validate() - "expires" is behind Date.now() - should return false', (t) => {
     const expires = Date.now() - 100000;
     t.equal(Cache._validate({ expires }), false);
     t.end();
 });
 
-tap.test('_validate() - expires is in front of Date.now() - should return true', (t) => {
+tap.test('_validate() - "expires" is in front of Date.now() - should return true', (t) => {
     const expires = Date.now() + 100000;
     t.equal(Cache._validate({ expires }), true);
     t.end();
