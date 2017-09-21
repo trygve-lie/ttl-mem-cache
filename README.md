@@ -61,6 +61,9 @@ An Object containing misc configuration. The following values can be provided:
 If an option Object with a `maxAge` is not provided all items in the cache will by
 default cached for 5 minutes before they expire.
 
+Items can be cached forever by setting `maxAge` to `Infinity`. Items cached forever
+can be overwritten and manually deleted.
+
 Pruning of items from the cache happend when they are touched by one of the methods
 for retrieving items from the cache. By default pruning happens before the method
 returns a value so if an item have expired, `undefined` will be returned for expired
@@ -89,6 +92,8 @@ This method take the following arguments:
  * key - An unique key the value should be stored on in the cache. Required.
  * value - The value to store on the key in the cache. Required.
  * maxAge - Max age before this item should expire. Uses default if not given. Optional.
+
+An item can be cached forever by setting `maxAge` to `Infinity`.
 
 
 ### .get(key)
