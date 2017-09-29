@@ -57,6 +57,7 @@ An Object containing misc configuration. The following values can be provided:
 
  * maxAge - `Number` - Default max age in milliseconds all items in the cache should be cached before expiering
  * stale - `Boolean` - If expired items in cache should be returned when pruned from the cache. Default: `false`.
+ * changelog - `Boolean` - If emitted `set` event and stream should contain both old and new value. Default: `false`
 
 If an option Object with a `maxAge` is not provided all items in the cache will by
 default cached for 5 minutes before they expire.
@@ -66,7 +67,7 @@ can be overwritten and manually deleted.
 
 Pruning of items from the cache happend when they are touched by one of the methods
 for retrieving items from the cache. By default pruning happens before the method
-returns a value so if an item have expired, `undefined` will be returned for expired
+returns a value so if an item have expired, `null` will be returned for expired
 items. By setting `stale` to `true`, these methods will return the pruned item(s)
 before they are removed from the cache.
 
@@ -112,8 +113,8 @@ This method take the following arguments:
 
 Triggering `.get()` will check the expire on the item. If the item is older than
 the max age set on it, the item will be removed from the cache and this method
-will return `undefined` unless `stale` is set to `true` on the constructor. Then
-the expired item will be returned before its removed from the cache.
+will return `null` unless `stale` is set to `true` on the constructor. Then the
+expired item will be returned before its removed from the cache.
 
 
 ### .del(key)
@@ -206,6 +207,9 @@ cache.on('set', (item) => {
 });
 cache.set('a', {foo: 'bar'});
 ```
+
+If `changefeed` is set to be `true` on the constructor, the emitted Object will hold both
+old and new value for the key. See "changelog" for further info.
 
 ### dispose
 
@@ -308,6 +312,45 @@ const convert = new stream.Transform({
 
 source.pipe(convert).pipe(cache);
 ```
+
+If `changefeed` is set to be `true` on the constructor, the emitted Object in the Readable stream
+will hold both old and new value for the key. See "changelog" for further info.
+
+
+
+## Changelog
+
+If the attribute `changelog` is set to `true` on the constructor, some emitted events will
+emit an object holding both old and new values for the key.
+
+The emitted object looks like this:
+
+```json
+{
+    key: 'a',
+    value: {
+        oldVal: 'foo',
+        newVal: 'bar'
+    }
+}
+```
+
+Example:
+
+```js
+const Cache = require('ttl-mem-cache');
+
+const cache = new Cache({ changefeed: true });
+cache.on('set', (item) => {
+    // item will be in the format above
+});
+cache.set('a', 'foo');
+cache.set('a', 'bar');
+```
+
+If a key does not hold a value in cache before, `oldVal` will be `null`.
+If a key hold a value which has expired and `stale` is `false`, `oldVal` will be `null`.
+If a key hold a value which has expired and `stale` is `true`, `oldVal` will be the old value.
 
 
 
