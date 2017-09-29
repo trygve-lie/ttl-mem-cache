@@ -122,6 +122,74 @@ tap.test('cache.set() - call twice with different values - should cache value of
     t.end();
 });
 
+tap.test('cache.set() - listen on "set" event - "on.set" event should emit key and value', (t) => {
+    const cache = new Cache();
+    cache.on('set', (item) => {
+        t.equal(item.key, 'foo');
+        t.equal(item.value, 'xyz');
+        t.end();
+    });
+    cache.set('foo', 'xyz');
+});
+
+tap.test('cache.set() - "changefeed : true" and key has value - "on.set" event should emit old and new value', (t) => {
+    const cache = new Cache({ changefeed: true });
+    cache.set('foo', 'bar');
+    cache.on('set', (item) => {
+        t.equal(item.key, 'foo');
+        t.equal(item.value.oldVal, 'bar');
+        t.equal(item.value.newVal, 'xyz');
+        t.end();
+    });
+    cache.set('foo', 'xyz');
+});
+
+tap.test('cache.set() - "changefeed : true" and key does not have a value - "on.set" event should emit new value and "null" for old value', (t) => {
+    const cache = new Cache({ changefeed: true });
+    cache.on('set', (item) => {
+        t.equal(item.key, 'foo');
+        t.equal(item.value.oldVal, null);
+        t.equal(item.value.newVal, 'xyz');
+        t.end();
+    });
+    cache.set('foo', 'xyz');
+});
+
+tap.test('cache.set() - "changefeed : true" and item has expired - "on.set" event should emit new value and "null" for old value', (t) => {
+    const clock = lolex.install();
+    const cache = new Cache({ maxAge: 2 * 1000, changefeed: true });
+    cache.set('foo', 'bar');
+
+    cache.on('set', (item) => {
+        t.equal(item.key, 'foo');
+        t.equal(item.value.oldVal, null);
+        t.equal(item.value.newVal, 'xyz');
+        clock.uninstall();
+        t.end();
+    });
+
+    clock.tick(3000);
+
+    cache.set('foo', 'xyz');
+});
+
+tap.test('cache.set() - "changefeed : true, stale : true" and item has expired - "on.set" event should emit old and new value', (t) => {
+    const clock = lolex.install();
+    const cache = new Cache({ maxAge: 2 * 1000, stale: true, changefeed: true });
+    cache.set('foo', 'bar');
+
+    cache.on('set', (item) => {
+        t.equal(item.key, 'foo');
+        t.equal(item.value.oldVal, 'bar');
+        t.equal(item.value.newVal, 'xyz');
+        clock.uninstall();
+        t.end();
+    });
+
+    clock.tick(3000);
+
+    cache.set('foo', 'xyz');
+});
 
 
 
@@ -150,7 +218,7 @@ tap.test('cache.get() - get value until timeout - should return value until time
     t.equal(cache.get(key), value);
 
     clock.tick(3000);
-    t.equal(cache.get(key), undefined);
+    t.equal(cache.get(key), null);
     clock.uninstall();
 
     t.end();
@@ -186,7 +254,7 @@ tap.test('cache.get() - cache set to return stale items - should return item onc
     clock.tick(3000);
     t.equal(cache.get(key), value);
 
-    t.equal(cache.get(key), undefined);
+    t.equal(cache.get(key), null);
     clock.uninstall();
 
     t.end();
@@ -338,9 +406,9 @@ tap.test('cache.prune() - prune all entries - should remove expired items', (t) 
 
     cache.prune();
 
-    t.equal(cache.get('a'), undefined);
+    t.equal(cache.get('a'), null);
     t.equal(cache.get('b'), 'foo');
-    t.equal(cache.get('c'), undefined);
+    t.equal(cache.get('c'), null);
 
     clock.uninstall();
     t.end();
@@ -359,8 +427,8 @@ tap.test('cache.clear() - clear cache - should empty cache', (t) => {
 
     cache.clear();
 
-    t.equal(cache.get('a'), undefined);
-    t.equal(cache.get('b'), undefined);
+    t.equal(cache.get('a'), null);
+    t.equal(cache.get('b'), null);
 
     t.end();
 });
@@ -368,8 +436,8 @@ tap.test('cache.clear() - clear cache - should empty cache', (t) => {
 tap.test('cache.clear() - clear cache - should emit "clear" event', (t) => {
     const cache = new Cache();
     cache.on('clear', () => {
-        t.equal(cache.get('a'), undefined);
-        t.equal(cache.get('b'), undefined);
+        t.equal(cache.get('a'), null);
+        t.equal(cache.get('b'), null);
         t.end();
     });
 
@@ -407,7 +475,7 @@ tap.test('_write() - pipe object without "value" - should remove object from cac
 
     cache.on('dispose', (key) => {
         t.equal(key, 'a');
-        t.equal(cache.get('a'), undefined);
+        t.equal(cache.get('a'), null);
         t.end();
     });
 
@@ -424,7 +492,7 @@ tap.test('_write() - pipe object where "value" is "null" - should remove object 
 
     cache.on('dispose', (key) => {
         t.equal(key, 'a');
-        t.equal(cache.get('a'), undefined);
+        t.equal(cache.get('a'), null);
         t.end();
     });
 
@@ -441,7 +509,7 @@ tap.test('_write() - pipe object where "value" is "undefined" - should remove ob
 
     cache.on('dispose', (key) => {
         t.equal(key, 'a');
-        t.equal(cache.get('a'), undefined);
+        t.equal(cache.get('a'), null);
         t.end();
     });
 
@@ -454,7 +522,7 @@ tap.test('_write() - pipe object without "key" - should emit error and not write
 
     cache.on('error', (error) => {
         t.equal(error.message, 'Object does not contain a "key" property or the value for "key" is null or undefined');
-        t.equal(cache.get('a'), undefined);
+        t.equal(cache.get('a'), null);
         t.end();
     });
 
@@ -466,7 +534,7 @@ tap.test('_write() - pipe object where "key" is "null" - should emit error and n
     const src = srcStream([{ key: null, value: 'foo' }]);
 
     cache.on('error', () => {
-        t.equal(cache.get('a'), undefined);
+        t.equal(cache.get('a'), null);
         t.end();
     });
 
@@ -478,7 +546,7 @@ tap.test('_write() - pipe object where "key" is "undefined" - should emit error 
     const src = srcStream([{ key: undefined, value: 'foo' }]);
 
     cache.on('error', () => {
-        t.equal(cache.get('a'), undefined);
+        t.equal(cache.get('a'), null);
         t.end();
     });
 
@@ -504,6 +572,27 @@ tap.test('_read() - pipe valid objects from cache - objects should be piped when
     cache.pipe(dest);
     cache.set('a', 'foo');
     cache.set('b', 'bar');
+
+    setImmediate(() => {
+        dest.end();
+    });
+});
+
+tap.test('_read() - pipe with "changefeed: true" - should emit changefeed objects', (t) => {
+    const cache = new Cache({ changefeed: true });
+    const dest = destStream((arr) => {
+        t.equal(arr[0].key, 'a');
+        t.equal(arr[0].value.newVal, 'foo');
+        t.equal(arr[0].value.oldVal, null);
+        t.equal(arr[1].key, 'a');
+        t.equal(arr[1].value.newVal, 'bar');
+        t.equal(arr[1].value.oldVal, 'foo');
+        t.end();
+    });
+
+    cache.pipe(dest);
+    cache.set('a', 'foo');
+    cache.set('a', 'bar');
 
     setImmediate(() => {
         dest.end();
