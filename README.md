@@ -325,7 +325,7 @@ emit an object holding both old and new values for the key.
 
 The emitted object looks like this:
 
-```json
+```js
 {
     key: 'a',
     value: {
