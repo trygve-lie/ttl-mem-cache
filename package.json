@@ -9,7 +9,8 @@
   "scripts": {
     "bench": "node benchmark/cache.js",
     "test": "tap test/*.js",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "repository": {
     "type": "git",

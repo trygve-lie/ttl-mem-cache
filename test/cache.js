@@ -448,6 +448,216 @@ tap.test('cache.clear() - clear cache - should emit "clear" event', (t) => {
 });
 
 
+
+/**
+ * .dump()
+ */
+
+tap.test('cache.dump() - dump cache - should return Array with all entries', (t) => {
+    const cache = new Cache();
+    cache.set('a', 'bar');
+    cache.set('b', 'foo');
+
+    const dump = cache.dump();
+
+    t.true(Array.isArray(dump));
+    t.equal(dump.length, 2);
+    t.end();
+});
+
+tap.test('cache.dump() - entries in the dumped Array - should be an Array with the "key" as first item and "value" as second item', (t) => {
+    const cache = new Cache();
+    cache.set('a', 'bar');
+    cache.set('b', 'foo');
+
+    const dump = cache.dump();
+
+    t.equal(dump[0].length, 2);
+    t.equal(dump[1].length, 2);
+
+    t.type(dump[0][0], 'string');
+    t.type(dump[1][0], 'string');
+
+    t.type(dump[0][1], 'object');
+    t.type(dump[1][1], 'object');
+
+    t.end();
+});
+
+tap.test('cache.dump() - dumped entries - should have "value" and "expires" attributes', (t) => {
+    const cache = new Cache();
+    cache.set('a', 'bar');
+    cache.set('b', 'foo');
+
+    const dump = cache.dump();
+
+    t.equal(dump[0][1].value, 'bar');
+    t.equal(dump[1][1].value, 'foo');
+
+    t.type(dump[0][1].expires, 'number');
+    t.type(dump[1][1].expires, 'number');
+
+    t.end();
+});
+
+
+
+/**
+ * .load()
+ */
+
+tap.test('cache.load() - load invalid value to "items" argument - should throw', (t) => {
+    const cache = new Cache();
+    t.throws(() => {
+        cache.load('fail');
+    }, new Error('Argument "items" is not an Array'));
+    t.end();
+});
+
+tap.test('cache.load() - load entries - should set entries in cache', (t) => {
+    const clock = lolex.install();
+    const dump = [
+        ['a', { value: 'bar', expires: 2000 }],
+        ['b', { value: 'foo', expires: 2000 }],
+    ];
+
+    const cache = new Cache();
+    cache.load(dump);
+
+    t.equal(cache.get('a'), 'bar');
+    t.equal(cache.get('b'), 'foo');
+
+    clock.uninstall();
+    t.end();
+});
+
+tap.test('cache.load() - load entries - should Array of keys inserted into cache', (t) => {
+    const dump = [
+        ['a', { value: 'bar', expires: 2000 }],
+        ['b', { value: 'foo', expires: 2000 }],
+    ];
+
+    const cache = new Cache();
+    const arr = cache.load(dump);
+
+    t.equal(arr[0], 'a');
+    t.equal(arr[1], 'b');
+
+    t.end();
+});
+
+tap.test('cache.load() - one entry is missing "key" - should set valid entries in cache', (t) => {
+    const dump = [
+        ['a', { value: 'bar', expires: 2000 }],
+        [{ value: 'foo', expires: 2000 }],
+        ['c', { value: 'xyz', expires: 2000 }],
+    ];
+
+    const cache = new Cache();
+    const arr = cache.load(dump);
+
+    t.equal(arr.length, 2);
+    t.equal(arr[0], 'a');
+    t.equal(arr[1], 'c');
+
+    t.end();
+});
+
+tap.test('cache.load() - one entry is missing "values" - should set valid entries in cache', (t) => {
+    const dump = [
+        ['a', { value: 'bar', expires: 2000 }],
+        ['b'],
+        ['c', { value: 'xyz', expires: 2000 }],
+    ];
+
+    const cache = new Cache();
+    const arr = cache.load(dump);
+
+    t.equal(arr.length, 2);
+    t.equal(arr[0], 'a');
+    t.equal(arr[1], 'c');
+
+    t.end();
+});
+
+tap.test('cache.load() - one entry is missing "values.value" - should set valid entries in cache', (t) => {
+    const dump = [
+        ['a', { value: 'bar', expires: 2000 }],
+        ['b', { expires: 2000 }],
+        ['c', { value: 'xyz', expires: 2000 }],
+    ];
+
+    const cache = new Cache();
+    const arr = cache.load(dump);
+
+    t.equal(arr.length, 2);
+    t.equal(arr[0], 'a');
+    t.equal(arr[1], 'c');
+
+    t.end();
+});
+
+tap.test('cache.load() - one entry is missing "values.expires" - should set valid entries in cache', (t) => {
+    const dump = [
+        ['a', { value: 'bar', expires: 2000 }],
+        ['b', { value: 'foo' }],
+        ['c', { value: 'xyz', expires: 2000 }],
+    ];
+
+    const cache = new Cache();
+    const arr = cache.load(dump);
+
+    t.equal(arr.length, 2);
+    t.equal(arr[0], 'a');
+    t.equal(arr[1], 'c');
+
+    t.end();
+});
+
+
+
+/**
+ * .dump() > .load()
+ */
+
+
+tap.test('cache.dump().load() - dump entries from one cache - should import into secondary cache', (t) => {
+    const cacheA = new Cache();
+    const cacheB = new Cache();
+
+    cacheA.set('a', 'bar');
+    cacheA.set('b', 'foo');
+    cacheB.load(cacheA.dump());
+
+    t.equal(cacheB.get('a'), 'bar');
+    t.equal(cacheB.get('b'), 'foo');
+
+    t.end();
+});
+
+
+
+/**
+ * .length()
+ */
+
+tap.test('cache.length() - have entries in cache - should return number of entries in cache', (t) => {
+    const cache = new Cache();
+    cache.set('a', 'bar');
+    cache.set('b', 'foo');
+
+    t.equal(cache.length(), 2);
+    t.end();
+});
+
+tap.test('cache.length() - no entries in cache - should return 0', (t) => {
+    const cache = new Cache();
+    t.equal(cache.length(), 0);
+    t.end();
+});
+
+
+
 /**
  * ._write() - Stream
  */

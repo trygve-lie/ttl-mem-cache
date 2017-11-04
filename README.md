@@ -184,6 +184,26 @@ Iterates over all items in the cache and proactively prunes expired items.
 Clears the entire cache. All items will be deleted.
 
 
+### .dump()
+
+Returns an Array of all items in the cache ready to be used by `.load()`.
+
+
+### .load()
+
+Loads an Array of items, provided by `.dump()`, into the cache. If any of
+the items in the loaded Array contains a key which already are in the cache
+the entry in the cache will be overwritten.
+
+If any of the entries in the loaded Array are not compatible with the format
+which `.dump()` exports, they will not be inserted into the cache.
+
+Returns and Array with the keys which was inserted into the cache.
+
+
+### .length()
+
+The number of items in the cache.
 
 
 ## Events
