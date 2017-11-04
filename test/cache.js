@@ -517,8 +517,8 @@ tap.test('cache.load() - load invalid value to "items" argument - should throw',
 tap.test('cache.load() - load entries - should set entries in cache', (t) => {
     const clock = lolex.install();
     const dump = [
-        [ 'a', { value: 'bar', expires: 2000 } ],
-        [ 'b', { value: 'foo', expires: 2000 } ],
+        ['a', { value: 'bar', expires: 2000 }],
+        ['b', { value: 'foo', expires: 2000 }],
     ];
 
     const cache = new Cache();
@@ -533,8 +533,8 @@ tap.test('cache.load() - load entries - should set entries in cache', (t) => {
 
 tap.test('cache.load() - load entries - should Array of keys inserted into cache', (t) => {
     const dump = [
-        [ 'a', { value: 'bar', expires: 2000 } ],
-        [ 'b', { value: 'foo', expires: 2000 } ],
+        ['a', { value: 'bar', expires: 2000 }],
+        ['b', { value: 'foo', expires: 2000 }],
     ];
 
     const cache = new Cache();
@@ -548,9 +548,9 @@ tap.test('cache.load() - load entries - should Array of keys inserted into cache
 
 tap.test('cache.load() - one entry is missing "key" - should set valid entries in cache', (t) => {
     const dump = [
-        [ 'a', { value: 'bar', expires: 2000 } ],
-        [ { value: 'foo', expires: 2000 } ],
-        [ 'c', { value: 'xyz', expires: 2000 } ],
+        ['a', { value: 'bar', expires: 2000 }],
+        [{ value: 'foo', expires: 2000 }],
+        ['c', { value: 'xyz', expires: 2000 }],
     ];
 
     const cache = new Cache();
@@ -565,9 +565,9 @@ tap.test('cache.load() - one entry is missing "key" - should set valid entries i
 
 tap.test('cache.load() - one entry is missing "values" - should set valid entries in cache', (t) => {
     const dump = [
-        [ 'a', { value: 'bar', expires: 2000 } ],
-        [ 'b' ],
-        [ 'c', { value: 'xyz', expires: 2000 } ],
+        ['a', { value: 'bar', expires: 2000 }],
+        ['b'],
+        ['c', { value: 'xyz', expires: 2000 }],
     ];
 
     const cache = new Cache();
@@ -582,9 +582,9 @@ tap.test('cache.load() - one entry is missing "values" - should set valid entrie
 
 tap.test('cache.load() - one entry is missing "values.value" - should set valid entries in cache', (t) => {
     const dump = [
-        [ 'a', { value: 'bar', expires: 2000 } ],
-        [ 'b', { expires: 2000 } ],
-        [ 'c', { value: 'xyz', expires: 2000 } ],
+        ['a', { value: 'bar', expires: 2000 }],
+        ['b', { expires: 2000 }],
+        ['c', { value: 'xyz', expires: 2000 }],
     ];
 
     const cache = new Cache();
@@ -599,9 +599,9 @@ tap.test('cache.load() - one entry is missing "values.value" - should set valid 
 
 tap.test('cache.load() - one entry is missing "values.expires" - should set valid entries in cache', (t) => {
     const dump = [
-        [ 'a', { value: 'bar', expires: 2000 } ],
-        [ 'b', { value: 'foo' } ],
-        [ 'c', { value: 'xyz', expires: 2000 } ],
+        ['a', { value: 'bar', expires: 2000 }],
+        ['b', { value: 'foo' }],
+        ['c', { value: 'xyz', expires: 2000 }],
     ];
 
     const cache = new Cache();
