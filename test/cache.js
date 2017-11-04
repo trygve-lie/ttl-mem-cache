@@ -448,6 +448,60 @@ tap.test('cache.clear() - clear cache - should emit "clear" event', (t) => {
 });
 
 
+
+/**
+ * .dump()
+ */
+
+tap.test('cache.dump() - dump cache - should return Array with all items', (t) => {
+    const cache = new Cache();
+    cache.set('a', 'bar');
+    cache.set('b', 'foo');
+
+    const dump = cache.dump();
+
+    t.true(Array.isArray(dump));
+    t.equal(dump.length, 2);
+    t.end();
+});
+
+tap.test('cache.dump() - items in the dumped Array - should be an Array with the "key" as forst item and "value" as second item', (t) => {
+    const cache = new Cache();
+    cache.set('a', 'bar');
+    cache.set('b', 'foo');
+
+    const dump = cache.dump();
+
+    t.equal(dump[0].length, 2);
+    t.equal(dump[1].length, 2);
+
+    t.type(dump[0][0], 'string');
+    t.type(dump[1][0], 'string');
+
+    t.type(dump[0][1], 'object');
+    t.type(dump[1][1], 'object');
+
+    t.end();
+});
+
+tap.test('cache.dump() - dumped values - should have "value" and "expires" attributes', (t) => {
+    const cache = new Cache();
+    cache.set('a', 'bar');
+    cache.set('b', 'foo');
+
+    const dump = cache.dump();
+
+    t.equal(dump[0][1].value, 'bar');
+    t.equal(dump[1][1].value, 'foo');
+
+    t.type(dump[0][1].expires, 'number');
+    t.type(dump[1][1].expires, 'number');
+
+    t.end();
+});
+
+
+
 /**
  * ._write() - Stream
  */
