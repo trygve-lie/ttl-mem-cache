@@ -638,6 +638,27 @@ tap.test('cache.dump().load() - dump entries from one cache - should import into
 
 
 /**
+ * .length()
+ */
+
+tap.test('cache.length() - have entries in cache - should return number of entries in cache', (t) => {
+    const cache = new Cache();
+    cache.set('a', 'bar');
+    cache.set('b', 'foo');
+
+    t.equal(cache.length(), 2);
+    t.end();
+});
+
+tap.test('cache.length() - no entries in cache - should return 0', (t) => {
+    const cache = new Cache();
+    t.equal(cache.length(), 0);
+    t.end();
+});
+
+
+
+/**
  * ._write() - Stream
  */
 
