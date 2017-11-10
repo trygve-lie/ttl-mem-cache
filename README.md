@@ -233,12 +233,12 @@ old and new value for the key. See "changelog" for further info.
 
 ### dispose
 
-When an item is disposed (deleted) from the cache. Emits the `key` of the item.
+When an item is disposed (deleted) from the cache. Emits the `key` of the item and the item itself.
 
 ```js
 const cache = new Cache();
-cache.on('dispose', (key) => {
-    console.log(key);  // outputs: 'a'
+cache.on('dispose', (key, item) => {
+    console.log(key, item);  // outputs: "a, {foo: 'bar'}"
 });
 cache.set('a', {foo: 'bar'});
 cache.del('a');
