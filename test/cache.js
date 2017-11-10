@@ -274,10 +274,25 @@ tap.test('cache.del() - remove set value - should remove value', (t) => {
     t.end();
 });
 
+tap.test('cache.del() - remove set value - should return true', (t) => {
+    const cache = new Cache();
+    cache.set('foo', 'bar');
+    t.equal(cache.del('foo'), true);
+    t.end();
+});
+
+tap.test('cache.del() - remove unset value - should return false', (t) => {
+    const cache = new Cache();
+    cache.set('foo', 'bar');
+    t.equal(cache.del('bar'), false);
+    t.end();
+});
+
 tap.test('cache.del() - remove set value - should emit dispose event on removal', (t) => {
     const cache = new Cache();
-    cache.on('dispose', (key) => {
+    cache.on('dispose', (key, item) => {
         t.equal(key, 'foo');
+        t.equal(item, 'bar');
         t.end();
     });
 
