@@ -55,9 +55,10 @@ const cache = new Cache(options);
 
 An Object containing misc configuration. The following values can be provided:
 
- * maxAge - `Number` - Default max age in milliseconds all items in the cache should be cached before expiering
+ * maxAge - `Number` - Default max age in milliseconds all items in the cache should be cached before expiering.
  * stale - `Boolean` - If expired items in cache should be returned when pruned from the cache. Default: `false`.
- * changelog - `Boolean` - If emitted `set` event and stream should contain both old and new value. Default: `false`
+ * changelog - `Boolean` - If emitted `set` event and stream should contain both old and new value. Default: `false`.
+ * id - `String` - Give the instanse a unique identifier. Default: `hash`
 
 If an option Object with a `maxAge` is not provided all items in the cache will by
 default cached for 5 minutes before they expire.
@@ -66,11 +67,15 @@ Items can be cached forever by setting `maxAge` to `Infinity`. Items cached fore
 can be overwritten and manually deleted.
 
 Pruning of items from the cache happend when they are touched by one of the methods
-for retrieving items from the cache. By default pruning happens before the method
-returns a value so if an item have expired, `null` will be returned for expired
-items. By setting `stale` to `true`, these methods will return the pruned item(s)
-before they are removed from the cache.
+for retrieving (`.get()` and `.entries()`) items from the cache. By default pruning
+happens before the method returns a value so if an item have expired, `null` will be
+returned for expired items. By setting `stale` to `true`, these methods will return
+the pruned item(s) before they are removed from the cache.
 
+Internally the cache has a unique ID created each time its instantiated. This ID is
+used to tell the origin of an cached item when streaming. The `id` will override
+this generated ID. When using this, be carefull to not provide the same ID to multiple
+instances of the cache.
 
 
 ## API
@@ -289,16 +294,47 @@ source.pipe(cache).pipe(dest);
 cache.entries();  // returns all the items streamed through the cache
 ```
 
+
+### Linking caches
+
+With the stream API its possible to link caches together and distribute cached items between them.
+
+```js
+const Cache = require('../');
+
+const cacheA = new Cache();
+const cacheB = new Cache();
+const cacheC = new Cache();
+
+// Link all caches together
+cacheA.pipe(cacheB).pipe(cacheC).pipe(cacheA);
+
+// Set a value in cache C
+cacheC.set('foo', 'bar');
+
+// Retrieve the same value from all caches
+console.log(cacheA.get('foo'), cacheB.get('foo'), cacheC.get('foo'));
+
+// Delete the value in cache A
+cacheA.del('foo');
+
+// The value is deleted from all caches
+console.log(cacheA.get('foo'), cacheB.get('foo'), cacheC.get('foo'));
+```
+
+
 ### Streaming Object type
 
-When writing to the cache, one can control what goes into the cache etc by a dedicated Object type. When reading from the cache, the stream will output the same Object type.
+When writing to the cache, one can control what goes into the cache etc by a dedicated Object type.
+When reading from the cache, the stream will output the same Object type.
 
 The Object type looks like this:
 
 ```js
 {
     key: 'item key',
-    value: 'item value'
+    value: 'item value',
+    origin: 'cache instance ID'
 }
 ```
 
@@ -308,6 +344,9 @@ and if not provided the stream will emit an error.
 When writing to the cache and a Object with `value` with a value is provided, it will be stored in
 the cache on the provided `key`. If `value` is not provided or `null` or `undefined` on the
 Object when writing to the cache, any item with a matching `key` in the cache will be deleted.
+
+When the stream emits objects each object will also have a `origin` key. The value is the unique
+ID of the instance the object first was emitted on the stream.
 
 If the items you want to store in the cache does not fit your data type, its recommended to use
 a [Transform Stream](https://nodejs.org/api/stream.html#stream_implementing_a_transform_stream)
