@@ -19,9 +19,12 @@
   "keywords": [
     "cache",
     "memcache",
+    "memory cache",
     "ttl",
     "time to live",
-    "performance"
+    "performance",
+    "expire cache",
+    "expiring"
   ],
   "author": "Trygve Lie",
   "license": "MIT",
