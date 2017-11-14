@@ -36,8 +36,5 @@
     "benchmark": "2.1.4",
     "lolex": "2.3.0",
     "tap": "10.7.3"
-  },
-  "dependencies": {
-    "readable-stream": "2.3.3"
   }
 }

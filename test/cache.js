@@ -41,6 +41,12 @@ const destStream = (done) => {
  * Constructor
  */
 
+tap.test('cache() - object type - should be TtlMemCache', (t) => {
+    const cache = new Cache();
+    t.equal(Object.prototype.toString.call(cache), '[object TtlMemCache]');
+    t.end();
+});
+
 tap.test('cache() - without maxAge - should set default maxAge', (t) => {
     const cache = new Cache();
     t.equal(cache.maxAge, (5 * 60 * 1000));
@@ -51,6 +57,19 @@ tap.test('cache() - with maxAge - should set default maxAge', (t) => {
     const maxAge = (60 * 60 * 1000);
     const cache = new Cache({ maxAge });
     t.equal(cache.maxAge, maxAge);
+    t.end();
+});
+
+tap.test('cache() - without id - should set default id', (t) => {
+    const cache = new Cache();
+    t.ok(cache.id);
+    t.end();
+});
+
+tap.test('cache() - with id - should set default id', (t) => {
+    const id = 'foo';
+    const cache = new Cache({ id });
+    t.equal(cache.id, id);
     t.end();
 });
 
@@ -853,6 +872,49 @@ tap.test('._write().pipe(_read()) - pipe valid objects through cache - objects s
     });
 });
 
+tap.test('._write().pipe(_read()) - circular pipe - set item - objects should be set in all caches', (t) => {
+    const cacheA = new Cache();
+    const cacheB = new Cache();
+    const cacheC = new Cache();
+    const cacheD = new Cache();
+
+    cacheA.pipe(cacheB).pipe(cacheC).pipe(cacheD).pipe(cacheA);
+
+    cacheB.set('a', 'foo');
+    cacheA.on('set', () => {
+        t.equal(cacheA.get('a'), 'foo');
+        t.equal(cacheB.get('a'), 'foo');
+        t.equal(cacheC.get('a'), 'foo');
+        t.equal(cacheD.get('a'), 'foo');
+        t.end();
+    });
+});
+
+tap.test('._write().pipe(_read()) - circular pipe - del item - objects should be removed from all caches', (t) => {
+    const cacheA = new Cache();
+    const cacheB = new Cache();
+    const cacheC = new Cache();
+    const cacheD = new Cache();
+
+    cacheA.pipe(cacheB).pipe(cacheC).pipe(cacheD).pipe(cacheA);
+
+    cacheB.set('a', 'foo');
+    cacheA.on('set', () => {
+        t.equal(cacheA.get('a'), 'foo');
+        t.equal(cacheB.get('a'), 'foo');
+        t.equal(cacheC.get('a'), 'foo');
+        t.equal(cacheD.get('a'), 'foo');
+        cacheD.del('a');
+    });
+
+    cacheC.on('dispose', () => {
+        t.equal(cacheA.get('a'), null);
+        t.equal(cacheB.get('a'), null);
+        t.equal(cacheC.get('a'), null);
+        t.equal(cacheD.get('a'), null);
+        t.end();
+    });
+});
 
 
 /**
