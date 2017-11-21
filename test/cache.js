@@ -669,6 +669,27 @@ tap.test('cache.dump().load() - dump entries from one cache - should import into
     t.end();
 });
 
+tap.test('cache.dump().load() - dump entries from one cache - should import into secondary cache and overwrite existing entries', (t) => {
+    const cacheA = new Cache();
+    const cacheB = new Cache();
+
+    cacheA.set('a', 'bar');
+    cacheA.set('b', 'foo');
+
+    cacheB.set('a', 'xyz');
+    cacheB.set('b', 'zyx');
+
+    t.equal(cacheB.get('a'), 'xyz');
+    t.equal(cacheB.get('b'), 'zyx');
+
+    cacheB.load(cacheA.dump());
+
+    t.equal(cacheB.get('a'), 'bar');
+    t.equal(cacheB.get('b'), 'foo');
+
+    t.end();
+});
+
 
 
 /**
