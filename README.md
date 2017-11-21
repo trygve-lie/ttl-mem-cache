@@ -194,11 +194,16 @@ Clears the entire cache. All items will be deleted.
 Returns an Array of all items in the cache ready to be used by `.load()`.
 
 
-### .load()
+### .load(dump)
 
-Loads an Array of items, provided by `.dump()`, into the cache. If any of
-the items in the loaded Array contains a key which already are in the cache
-the entry in the cache will be overwritten.
+Loads an Array of items, provided by `.dump()`, into the cache.
+
+This method take the following arguments:
+
+ * dump - Array of items to be imported.
+
+If any of the items in the loaded Array contains a key which already are in
+the cache the entry in the cache will be overwritten.
 
 If any of the entries in the loaded Array are not compatible with the format
 which `.dump()` exports, they will not be inserted into the cache.
