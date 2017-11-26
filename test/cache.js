@@ -1,6 +1,6 @@
 'use strict';
 
-const stream = require('readable-stream');
+const stream = require('stream');
 const Cache = require('../');
 const lolex = require('lolex');
 const tap = require('tap');
