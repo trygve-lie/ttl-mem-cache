@@ -9,6 +9,7 @@
   "scripts": {
     "bench": "node benchmark/cache.js",
     "test": "tap test/*.js",
+    "test:coverage": "tap test/*.js --cov",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
