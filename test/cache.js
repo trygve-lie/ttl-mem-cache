@@ -1,7 +1,7 @@
 'use strict';
 
 const stream = require('stream');
-const Cache = require('../lib/cache.js');
+const Cache = require('../');
 const lolex = require('lolex');
 const tap = require('tap');
 
