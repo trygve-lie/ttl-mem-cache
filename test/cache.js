@@ -407,6 +407,43 @@ tap.test('cache.entries() - cache set to return stale items - purged items shoul
     cache.set('b', 'foo', 2 * 1000);
     cache.set('c', 'xyz');
 
+    const entries1 = cache.entries((value) => {
+        return `prefix-${value}`;
+    });
+    t.equal(entries1[0], 'prefix-bar');
+    t.equal(entries1[1], 'prefix-foo');
+    t.equal(entries1[2], 'prefix-xyz');
+    t.equal(entries1.length, 3);
+
+    clock.tick(3000);
+
+    const entries2 = cache.entries((value) => {
+        return `prefix-${value}`;
+    });
+    t.equal(entries2[0], 'prefix-bar');
+    t.equal(entries2[1], 'prefix-foo');
+    t.equal(entries2[2], 'prefix-xyz');
+    t.equal(entries2.length, 3);
+
+    const entries3 = cache.entries((value) => {
+        return `prefix-${value}`;
+    });
+    t.equal(entries3[0], 'prefix-bar');
+    t.equal(entries3[1], 'prefix-xyz');
+    t.equal(entries3.length, 2);
+
+    clock.uninstall();
+    t.end();
+});
+
+tap.test('cache.entries() - cache set to return stale items, call with mutator - purged items should be mutated and returned once', (t) => {
+    const clock = lolex.install();
+
+    const cache = new Cache({ stale: true });
+    cache.set('a', 'bar');
+    cache.set('b', 'foo', 2 * 1000);
+    cache.set('c', 'xyz');
+
     const entries1 = cache.entries();
     t.equal(entries1.length, 3);
 
@@ -421,7 +458,6 @@ tap.test('cache.entries() - cache set to return stale items - purged items shoul
     clock.uninstall();
     t.end();
 });
-
 
 
 /**
@@ -819,7 +855,6 @@ tap.test('_write() - pipe object where "key" is "undefined" - should emit error 
 });
 
 
-
 /**
  * ._read() - Stream
  */
@@ -864,6 +899,13 @@ tap.test('_read() - pipe with "changefeed: true" - should emit changefeed object
     });
 });
 
+tap.test('_read() - set item when no stream is attached to Readable stream - should be no items in internal stream buffer', (t) => {
+    const cache = new Cache();
+    cache.set('a', 'foo');
+    cache.set('a', 'bar');
+    t.equal(cache._readableState.buffer.length, 0);
+    t.end();
+});
 
 
 /**
