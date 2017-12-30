@@ -33,28 +33,28 @@ tap.test('utils.calculateExpire() - empty argument - should return now timestamp
 
 
 /**
- * .validate()
+ * .expired()
  */
 
-tap.test('utils.validate() - empty argument - should return false', (t) => {
-    t.equal(utils.validate(), false);
+tap.test('utils.expired() - empty argument - should return true', (t) => {
+    t.equal(utils.expired(), true);
     t.end();
 });
 
-tap.test('utils.validate() - "expires" is Infinity - should return false', (t) => {
+tap.test('utils.expired() - "expires" is Infinity - should return false', (t) => {
     const expires = Infinity;
-    t.equal(utils.validate({ expires }), false);
+    t.equal(utils.expired(expires), false);
     t.end();
 });
 
-tap.test('utils.validate() - "expires" is behind Date.now() - should return false', (t) => {
+tap.test('utils.expired() - "expires" is behind Date.now() - should return true', (t) => {
     const expires = Date.now() - 100000;
-    t.equal(utils.validate({ expires }), false);
+    t.equal(utils.expired(expires), true);
     t.end();
 });
 
-tap.test('utils.validate() - "expires" is in front of Date.now() - should return true', (t) => {
+tap.test('utils.expired() - "expires" is in front of Date.now() - should return false', (t) => {
     const expires = Date.now() + 100000;
-    t.equal(utils.validate({ expires }), true);
+    t.equal(utils.expired(expires), false);
     t.end();
 });
