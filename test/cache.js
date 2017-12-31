@@ -47,16 +47,16 @@ tap.test('cache() - object type - should be TtlMemCache', (t) => {
     t.end();
 });
 
-tap.test('cache() - without maxAge - should set default maxAge', (t) => {
+tap.test('cache() - without ttl - should set default ttl', (t) => {
     const cache = new Cache();
-    t.equal(cache.maxAge, (5 * 60 * 1000));
+    t.equal(cache.ttl, (5 * 60 * 1000));
     t.end();
 });
 
-tap.test('cache() - with maxAge - should set default maxAge', (t) => {
-    const maxAge = (60 * 60 * 1000);
-    const cache = new Cache({ maxAge });
-    t.equal(cache.maxAge, maxAge);
+tap.test('cache() - with ttl - should set default ttl', (t) => {
+    const ttl = (60 * 60 * 1000);
+    const cache = new Cache({ ttl });
+    t.equal(cache.ttl, ttl);
     t.end();
 });
 
@@ -109,13 +109,13 @@ tap.test('cache.set() - with key and value - should set value on key in storage'
     t.end();
 });
 
-tap.test('cache.set() - without ttl - should set default maxAge', (t) => {
+tap.test('cache.set() - without ttl - should set default ttl', (t) => {
     const clock = lolex.install();
     clock.tick(100000);
 
     const cache = new Cache();
     cache.set('foo', 'bar');
-    t.equal(cache.store.get('foo').expires, 400000); // default maxAge + lolex tick time
+    t.equal(cache.store.get('foo').expires, 400000); // default ttl + lolex tick time
 
     clock.uninstall();
     t.end();
@@ -176,7 +176,7 @@ tap.test('cache.set() - "changefeed : true" and key does not have a value - "on.
 
 tap.test('cache.set() - "changefeed : true" and item has expired - "on.set" event should emit new value and "null" for old value', (t) => {
     const clock = lolex.install();
-    const cache = new Cache({ maxAge: 2 * 1000, changefeed: true });
+    const cache = new Cache({ ttl: 2 * 1000, changefeed: true });
     cache.set('foo', 'bar');
 
     cache.on('set', (key, value) => {
@@ -194,7 +194,7 @@ tap.test('cache.set() - "changefeed : true" and item has expired - "on.set" even
 
 tap.test('cache.set() - "changefeed : true, stale : true" and item has expired - "on.set" event should emit old and new value', (t) => {
     const clock = lolex.install();
-    const cache = new Cache({ maxAge: 2 * 1000, stale: true, changefeed: true });
+    const cache = new Cache({ ttl: 2 * 1000, stale: true, changefeed: true });
     cache.set('foo', 'bar');
 
     cache.on('set', (key, value) => {
@@ -224,7 +224,7 @@ tap.test('cache.get() - get set value - should return set value', (t) => {
 
 tap.test('cache.get() - get value until timeout - should return value until timeout', (t) => {
     const clock = lolex.install();
-    const cache = new Cache({ maxAge: 2 * 1000 });
+    const cache = new Cache({ ttl: 2 * 1000 });
 
     const key = 'foo';
     const value = 'bar';
@@ -245,7 +245,7 @@ tap.test('cache.get() - get value until timeout - should return value until time
 tap.test('cache.get() - get value until timeout - should emit dispose event on timeout', (t) => {
     const clock = lolex.install();
 
-    const cache = new Cache({ maxAge: 2 * 1000 });
+    const cache = new Cache({ ttl: 2 * 1000 });
     cache.on('dispose', (key) => {
         t.equal(key, 'foo');
         t.end();
@@ -261,7 +261,7 @@ tap.test('cache.get() - get value until timeout - should emit dispose event on t
 
 tap.test('cache.get() - cache set to return stale items - should return item once after timeout', (t) => {
     const clock = lolex.install();
-    const cache = new Cache({ maxAge: 2 * 1000, stale: true });
+    const cache = new Cache({ ttl: 2 * 1000, stale: true });
 
     const key = 'foo';
     const value = 'bar';
