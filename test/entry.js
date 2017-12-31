@@ -273,3 +273,120 @@ tap.test('.toJSON() - call JSON.stringify on Entry object - should return a Stri
     clock.uninstall();
     t.end();
 });
+
+/**
+ * .assertLoose()
+ */
+
+tap.test('.assertLoose() - Entry object - should return true', (t) => {
+    const entry = new Entry({
+        key: 'a',
+        value: 'foo',
+        ttl: 2000,
+        origin: 'source',
+    });
+    t.true(Entry.assertLoose(entry));
+    t.end();
+});
+
+tap.test('.assertLoose() - Object literal with "key" and "value" - should return true', (t) => {
+    const entry = {
+        key: 'a',
+        value: 'foo',
+        ttl: 2000,
+        origin: 'source',
+    };
+    t.true(Entry.assertLoose(entry));
+    t.end();
+});
+
+tap.test('.assertLoose() - Object literal without "key" - should return false', (t) => {
+    const entry = {
+        value: 'foo',
+        ttl: 2000,
+        origin: 'source',
+    };
+    t.false(Entry.assertLoose(entry));
+    t.end();
+});
+
+tap.test('.assertLoose() - Object literal without "value" - should return false', (t) => {
+    const entry = {
+        key: 'a',
+        ttl: 2000,
+        origin: 'source',
+    };
+    t.false(Entry.assertLoose(entry));
+    t.end();
+});
+
+tap.test('.assertLoose() - Object literal without "key" and "value" - should return false', (t) => {
+    t.false(Entry.assertLoose({}));
+    t.end();
+});
+
+tap.test('.assertLoose() - No argument - should return false', (t) => {
+    t.false(Entry.assertLoose());
+    t.end();
+});
+
+/**
+ * .assertStrict()
+ */
+
+tap.test('.assertStrict() - x - should return true', (t) => {
+    const entry = new Entry({
+        key: 'a',
+        value: 'foo',
+        ttl: 2000,
+        origin: 'source',
+    });
+    t.true(Entry.assertStrict(entry));
+    t.end();
+});
+
+tap.test('.assertStrict() - Object literal with "key", "value" and "ttl" - should return true', (t) => {
+    const entry = {
+        key: 'a',
+        value: 'foo',
+        ttl: 2000,
+        origin: 'source',
+    };
+    t.true(Entry.assertStrict(entry));
+    t.end();
+});
+
+tap.test('.assertStrict() - Object literal without "key" - should return false', (t) => {
+    const entry = {
+        value: 'foo',
+        ttl: 2000,
+        origin: 'source',
+    };
+    t.false(Entry.assertStrict(entry));
+    t.end();
+});
+
+tap.test('.assertStrict() - Object literal without "value" - should return false', (t) => {
+    const entry = {
+        key: 'a',
+        ttl: 2000,
+        origin: 'source',
+    };
+    t.false(Entry.assertStrict(entry));
+    t.end();
+});
+
+tap.test('.assertStrict() - Object literal without "ttl" - should return false', (t) => {
+    const entry = {
+        key: 'a',
+        value: 'foo',
+        origin: 'source',
+    };
+    t.false(Entry.assertStrict(entry));
+    t.end();
+});
+
+tap.test('.assertStrict() - No argument - should return false', (t) => {
+    t.false(Entry.assertStrict());
+    t.end();
+});

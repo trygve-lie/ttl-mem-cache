@@ -699,13 +699,13 @@ tap.test('cache.load() - one entry is missing "values.value" - should set valid 
     t.end();
 });
 
-tap.test('cache.load() - one entry is missing "values.expires" - should set valid entries in cache', (t) => {
+tap.test('cache.load() - one entry is missing "values.ttl" - should set valid entries in cache', (t) => {
     const dump = [
         ['a', {
             key: 'a', value: 'bar', ttl: 2000, origin: 'org', expires: 2000
         }],
         ['b', {
-            key: 'b', value: 'bar', ttl: 2000, origin: 'org'
+            key: 'b', value: 'bar', origin: 'org'
         }],
         ['c', {
             key: 'c', value: 'xyz', ttl: 2000, origin: 'org', expires: 2000
