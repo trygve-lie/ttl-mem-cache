@@ -83,7 +83,7 @@ instances of the cache.
 The Cache instance have the following API:
 
 
-### .set(key, value, maxAge)
+### .set(key, value, ttl)
 
 Set an item in the cache on a given key.
 
@@ -97,9 +97,9 @@ This method take the following arguments:
 
  * key - An unique key the value should be stored on in the cache. Required.
  * value - The value to store on the key in the cache. Required.
- * maxAge - Max age before this item should expire. Uses default if not given. Optional.
+ * ttl - Time to live before the item should expire. Uses default if not given. Optional.
 
-An item can be cached forever by setting `maxAge` to `Infinity`.
+An item can be cached forever by setting `ttl` to `Infinity`.
 
 
 ### .get(key)
@@ -117,7 +117,7 @@ This method take the following arguments:
  * key - The unique key for the item in the cache. Required.
 
 Triggering `.get()` will check the expire on the item. If the item is older than
-the max age set on it, the item will be removed from the cache and this method
+the time to live set on it, the item will be removed from the cache and this method
 will return `null` unless `stale` is set to `true` on the constructor. Then the
 expired item will be returned before its removed from the cache.
 
@@ -149,17 +149,13 @@ const all = cache.entries(); // returns [{foo: 'bar'}, {foo: 'xyz'}]
 ```
 
 Triggering `.entries()` will check the expire on the items. If an item is older than
-the max age set on it, the item will be removed from the cache and it will not be
+the time to live set on it, the item will be removed from the cache and it will not be
 included in the returned value of this methid unless `stale` is set to `true` on the
 constructor. Then the expired item will be included before its removed from the cache.
 
 This method take the following arguments:
 
  * mutator - A function for mutating the items returned. Optional.
-
-Triggering `.entries()` will check the expire on all the items. If an item is older
-than the max age set on it, the item will be removed from the cache and it will not
-be part of the returned Array.
 
 The mutator attribute can be used to change the structure of the returned items. It
 takes a function which will be called with an Object with the `key` and `value`. This
@@ -232,8 +228,8 @@ When an item is set in the cache. Emits an Object with the `key` and `value` of 
 
 ```js
 const cache = new Cache();
-cache.on('set', (item) => {
-    console.log(item);  // outputs: {key: 'a', value: {foo: 'bar'}}
+cache.on('set', (key, item) => {
+    console.log(key, item);  // outputs: "a, {foo: 'bar'}"
 });
 cache.set('a', {foo: 'bar'});
 ```
@@ -339,7 +335,10 @@ The Object type looks like this:
 {
     key: 'item key',
     value: 'item value',
-    origin: 'cache instance ID'
+    origin: 'cache instance ID',
+    ttl: 'time to live',
+    expires: 'time stamp',
+    type: 'TtlMemCacheEntry'
 }
 ```
 
@@ -377,25 +376,19 @@ const convert = new stream.Transform({
 source.pipe(convert).pipe(cache);
 ```
 
-If `changefeed` is set to be `true` on the constructor, the emitted Object in the Readable stream
-will hold both old and new value for the key. See "changelog" for further info.
-
 
 
 ## Changelog
 
-If the attribute `changelog` is set to `true` on the constructor, some emitted events will
-emit an object holding both old and new values for the key.
+If the attribute `changelog` is set to `true` on the constructor, the `set` events will emit an
+object holding both old and new values for the key.
 
 The emitted object looks like this:
 
 ```js
 {
-    key: 'a',
-    value: {
-        oldVal: 'foo',
-        newVal: 'bar'
-    }
+    oldVal: 'foo',
+    newVal: 'bar'
 }
 ```
 
@@ -405,7 +398,7 @@ Example:
 const Cache = require('ttl-mem-cache');
 
 const cache = new Cache({ changefeed: true });
-cache.on('set', (item) => {
+cache.on('set', (key, item) => {
     // item will be in the format above
 });
 cache.set('a', 'foo');
