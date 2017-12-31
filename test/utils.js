@@ -31,30 +31,98 @@ tap.test('utils.calculateExpire() - empty argument - should return now timestamp
     t.end();
 });
 
-
 /**
- * .validate()
+ * .expired()
  */
 
-tap.test('utils.validate() - empty argument - should return false', (t) => {
-    t.equal(utils.validate(), false);
+tap.test('utils.expired() - empty argument - should return true', (t) => {
+    t.true(utils.expired());
     t.end();
 });
 
-tap.test('utils.validate() - "expires" is Infinity - should return false', (t) => {
+tap.test('utils.expired() - "expires" is Infinity - should return false', (t) => {
     const expires = Infinity;
-    t.equal(utils.validate({ expires }), false);
+    t.false(utils.expired(expires));
     t.end();
 });
 
-tap.test('utils.validate() - "expires" is behind Date.now() - should return false', (t) => {
+tap.test('utils.expired() - "expires" is behind Date.now() - should return true', (t) => {
     const expires = Date.now() - 100000;
-    t.equal(utils.validate({ expires }), false);
+    t.true(utils.expired(expires));
     t.end();
 });
 
-tap.test('utils.validate() - "expires" is in front of Date.now() - should return true', (t) => {
+tap.test('utils.expired() - "expires" is in front of Date.now() - should return false', (t) => {
     const expires = Date.now() + 100000;
-    t.equal(utils.validate({ expires }), true);
+    t.false(utils.expired(expires));
+    t.end();
+});
+
+/**
+ * .isEmpty()
+ */
+
+tap.test('utils.isEmpty() - value is not empty - should return false', (t) => {
+    t.false(utils.isEmpty('foo'));
+    t.false(utils.isEmpty(1));
+    t.false(utils.isEmpty({}));
+    t.false(utils.isEmpty([1]));
+    t.end();
+});
+
+tap.test('utils.isEmpty() - value is "null" - should return true', (t) => {
+    t.true(utils.isEmpty(null));
+    t.end();
+});
+
+tap.test('utils.isEmpty() - value is "undefined" - should return true', (t) => {
+    t.true(utils.isEmpty(undefined));
+    t.end();
+});
+
+/**
+ * .isNotEmpty()
+ */
+
+tap.test('utils.isNotEmpty() - value is not empty - should return true', (t) => {
+    t.true(utils.isNotEmpty('foo'));
+    t.true(utils.isNotEmpty(1));
+    t.true(utils.isNotEmpty({}));
+    t.true(utils.isNotEmpty([1]));
+    t.end();
+});
+
+tap.test('utils.isNotEmpty() - value is "null" - should return false', (t) => {
+    t.false(utils.isNotEmpty(null));
+    t.end();
+});
+
+tap.test('utils.isNotEmpty() - value is "undefined" - should return false', (t) => {
+    t.false(utils.isNotEmpty(undefined));
+    t.end();
+});
+
+/**
+ * .isFunction()
+ */
+
+tap.test('utils.isFunction() - value is not a function - should return false', (t) => {
+    t.false(utils.isFunction());
+    t.false(utils.isFunction('foo'));
+    t.false(utils.isFunction(1));
+    t.false(utils.isFunction({}));
+    t.false(utils.isFunction([1]));
+    t.end();
+});
+
+tap.test('utils.isFunction() - value is a function - should return true', (t) => {
+    const fn = function fn(x) {
+        return x;
+    };
+    const arr = (x) => {
+        return x;
+    };
+    t.true(utils.isFunction(fn));
+    t.true(utils.isFunction(arr));
     t.end();
 });

@@ -47,16 +47,16 @@ tap.test('cache() - object type - should be TtlMemCache', (t) => {
     t.end();
 });
 
-tap.test('cache() - without maxAge - should set default maxAge', (t) => {
+tap.test('cache() - without ttl - should set default ttl', (t) => {
     const cache = new Cache();
-    t.equal(cache.maxAge, (5 * 60 * 1000));
+    t.equal(cache.ttl, (5 * 60 * 1000));
     t.end();
 });
 
-tap.test('cache() - with maxAge - should set default maxAge', (t) => {
-    const maxAge = (60 * 60 * 1000);
-    const cache = new Cache({ maxAge });
-    t.equal(cache.maxAge, maxAge);
+tap.test('cache() - with ttl - should set default ttl', (t) => {
+    const ttl = (60 * 60 * 1000);
+    const cache = new Cache({ ttl });
+    t.equal(cache.ttl, ttl);
     t.end();
 });
 
@@ -109,19 +109,19 @@ tap.test('cache.set() - with key and value - should set value on key in storage'
     t.end();
 });
 
-tap.test('cache.set() - without maxAge - should set default maxAge', (t) => {
+tap.test('cache.set() - without ttl - should set default ttl', (t) => {
     const clock = lolex.install();
     clock.tick(100000);
 
     const cache = new Cache();
     cache.set('foo', 'bar');
-    t.equal(cache.store.get('foo').expires, 400000); // default maxAge + lolex tick time
+    t.equal(cache.store.get('foo').expires, 400000); // default ttl + lolex tick time
 
     clock.uninstall();
     t.end();
 });
 
-tap.test('cache.set() - with maxAge - should set maxAge', (t) => {
+tap.test('cache.set() - with ttl - should set ttl', (t) => {
     const clock = lolex.install();
     clock.tick(100000);
 
@@ -143,9 +143,9 @@ tap.test('cache.set() - call twice with different values - should cache value of
 
 tap.test('cache.set() - listen on "set" event - "on.set" event should emit key and value', (t) => {
     const cache = new Cache();
-    cache.on('set', (item) => {
-        t.equal(item.key, 'foo');
-        t.equal(item.value, 'xyz');
+    cache.on('set', (key, value) => {
+        t.equal(key, 'foo');
+        t.equal(value, 'xyz');
         t.end();
     });
     cache.set('foo', 'xyz');
@@ -154,10 +154,10 @@ tap.test('cache.set() - listen on "set" event - "on.set" event should emit key a
 tap.test('cache.set() - "changefeed : true" and key has value - "on.set" event should emit old and new value', (t) => {
     const cache = new Cache({ changefeed: true });
     cache.set('foo', 'bar');
-    cache.on('set', (item) => {
-        t.equal(item.key, 'foo');
-        t.equal(item.value.oldVal, 'bar');
-        t.equal(item.value.newVal, 'xyz');
+    cache.on('set', (key, value) => {
+        t.equal(key, 'foo');
+        t.equal(value.oldVal, 'bar');
+        t.equal(value.newVal, 'xyz');
         t.end();
     });
     cache.set('foo', 'xyz');
@@ -165,10 +165,10 @@ tap.test('cache.set() - "changefeed : true" and key has value - "on.set" event s
 
 tap.test('cache.set() - "changefeed : true" and key does not have a value - "on.set" event should emit new value and "null" for old value', (t) => {
     const cache = new Cache({ changefeed: true });
-    cache.on('set', (item) => {
-        t.equal(item.key, 'foo');
-        t.equal(item.value.oldVal, null);
-        t.equal(item.value.newVal, 'xyz');
+    cache.on('set', (key, value) => {
+        t.equal(key, 'foo');
+        t.equal(value.oldVal, null);
+        t.equal(value.newVal, 'xyz');
         t.end();
     });
     cache.set('foo', 'xyz');
@@ -176,13 +176,13 @@ tap.test('cache.set() - "changefeed : true" and key does not have a value - "on.
 
 tap.test('cache.set() - "changefeed : true" and item has expired - "on.set" event should emit new value and "null" for old value', (t) => {
     const clock = lolex.install();
-    const cache = new Cache({ maxAge: 2 * 1000, changefeed: true });
+    const cache = new Cache({ ttl: 2 * 1000, changefeed: true });
     cache.set('foo', 'bar');
 
-    cache.on('set', (item) => {
-        t.equal(item.key, 'foo');
-        t.equal(item.value.oldVal, null);
-        t.equal(item.value.newVal, 'xyz');
+    cache.on('set', (key, value) => {
+        t.equal(key, 'foo');
+        t.equal(value.oldVal, null);
+        t.equal(value.newVal, 'xyz');
         clock.uninstall();
         t.end();
     });
@@ -194,13 +194,13 @@ tap.test('cache.set() - "changefeed : true" and item has expired - "on.set" even
 
 tap.test('cache.set() - "changefeed : true, stale : true" and item has expired - "on.set" event should emit old and new value', (t) => {
     const clock = lolex.install();
-    const cache = new Cache({ maxAge: 2 * 1000, stale: true, changefeed: true });
+    const cache = new Cache({ ttl: 2 * 1000, stale: true, changefeed: true });
     cache.set('foo', 'bar');
 
-    cache.on('set', (item) => {
-        t.equal(item.key, 'foo');
-        t.equal(item.value.oldVal, 'bar');
-        t.equal(item.value.newVal, 'xyz');
+    cache.on('set', (key, value) => {
+        t.equal(key, 'foo');
+        t.equal(value.oldVal, 'bar');
+        t.equal(value.newVal, 'xyz');
         clock.uninstall();
         t.end();
     });
@@ -209,7 +209,6 @@ tap.test('cache.set() - "changefeed : true, stale : true" and item has expired -
 
     cache.set('foo', 'xyz');
 });
-
 
 
 /**
@@ -225,7 +224,7 @@ tap.test('cache.get() - get set value - should return set value', (t) => {
 
 tap.test('cache.get() - get value until timeout - should return value until timeout', (t) => {
     const clock = lolex.install();
-    const cache = new Cache({ maxAge: 2 * 1000 });
+    const cache = new Cache({ ttl: 2 * 1000 });
 
     const key = 'foo';
     const value = 'bar';
@@ -246,7 +245,7 @@ tap.test('cache.get() - get value until timeout - should return value until time
 tap.test('cache.get() - get value until timeout - should emit dispose event on timeout', (t) => {
     const clock = lolex.install();
 
-    const cache = new Cache({ maxAge: 2 * 1000 });
+    const cache = new Cache({ ttl: 2 * 1000 });
     cache.on('dispose', (key) => {
         t.equal(key, 'foo');
         t.end();
@@ -262,7 +261,7 @@ tap.test('cache.get() - get value until timeout - should emit dispose event on t
 
 tap.test('cache.get() - cache set to return stale items - should return item once after timeout', (t) => {
     const clock = lolex.install();
-    const cache = new Cache({ maxAge: 2 * 1000, stale: true });
+    const cache = new Cache({ ttl: 2 * 1000, stale: true });
 
     const key = 'foo';
     const value = 'bar';
@@ -535,7 +534,7 @@ tap.test('cache.dump() - dump cache - should return Array with all entries', (t)
     t.end();
 });
 
-tap.test('cache.dump() - entries in the dumped Array - should be an Array with the "key" as first item and "value" as second item', (t) => {
+tap.test('cache.dump() - entries in the dumped Array - should be an Array with the "key" as first item and "entry" Object as second item', (t) => {
     const cache = new Cache();
     cache.set('a', 'bar');
     cache.set('b', 'foo');
@@ -554,15 +553,24 @@ tap.test('cache.dump() - entries in the dumped Array - should be an Array with t
     t.end();
 });
 
-tap.test('cache.dump() - dumped entries - should have "value" and "expires" attributes', (t) => {
+tap.test('cache.dump() - dumped entries - should have all properties of the Entry object', (t) => {
     const cache = new Cache();
     cache.set('a', 'bar');
     cache.set('b', 'foo');
 
     const dump = cache.dump();
 
+    t.equal(dump[0][1].key, 'a');
+    t.equal(dump[1][1].key, 'b');
+
     t.equal(dump[0][1].value, 'bar');
     t.equal(dump[1][1].value, 'foo');
+
+    t.type(dump[0][1].ttl, 'number');
+    t.type(dump[1][1].ttl, 'number');
+
+    t.type(dump[0][1].origin, 'string');
+    t.type(dump[1][1].origin, 'string');
 
     t.type(dump[0][1].expires, 'number');
     t.type(dump[1][1].expires, 'number');
@@ -587,8 +595,12 @@ tap.test('cache.load() - load invalid value to "items" argument - should throw',
 tap.test('cache.load() - load entries - should set entries in cache', (t) => {
     const clock = lolex.install();
     const dump = [
-        ['a', { value: 'bar', expires: 2000 }],
-        ['b', { value: 'foo', expires: 2000 }],
+        ['a', {
+            key: 'a', value: 'bar', ttl: 2000, origin: 'org', expires: 2000
+        }],
+        ['b', {
+            key: 'b', value: 'foo', ttl: 2000, origin: 'org', expires: 2000
+        }],
     ];
 
     const cache = new Cache();
@@ -601,10 +613,14 @@ tap.test('cache.load() - load entries - should set entries in cache', (t) => {
     t.end();
 });
 
-tap.test('cache.load() - load entries - should Array of keys inserted into cache', (t) => {
+tap.test('cache.load() - load entries - should return Array of keys inserted into cache', (t) => {
     const dump = [
-        ['a', { value: 'bar', expires: 2000 }],
-        ['b', { value: 'foo', expires: 2000 }],
+        ['a', {
+            key: 'a', value: 'bar', ttl: 2000, origin: 'org', expires: 2000
+        }],
+        ['b', {
+            key: 'b', value: 'foo', ttl: 2000, origin: 'org', expires: 2000
+        }],
     ];
 
     const cache = new Cache();
@@ -618,9 +634,15 @@ tap.test('cache.load() - load entries - should Array of keys inserted into cache
 
 tap.test('cache.load() - one entry is missing "key" - should set valid entries in cache', (t) => {
     const dump = [
-        ['a', { value: 'bar', expires: 2000 }],
-        [{ value: 'foo', expires: 2000 }],
-        ['c', { value: 'xyz', expires: 2000 }],
+        ['a', {
+            key: 'a', value: 'bar', ttl: 2000, origin: 'org', expires: 2000
+        }],
+        [{
+            key: 'b', value: 'foo', ttl: 2000, origin: 'org', expires: 2000
+        }],
+        ['c', {
+            key: 'c', value: 'xyz', ttl: 2000, origin: 'org', expires: 2000
+        }],
     ];
 
     const cache = new Cache();
@@ -635,9 +657,13 @@ tap.test('cache.load() - one entry is missing "key" - should set valid entries i
 
 tap.test('cache.load() - one entry is missing "values" - should set valid entries in cache', (t) => {
     const dump = [
-        ['a', { value: 'bar', expires: 2000 }],
+        ['a', {
+            key: 'a', value: 'bar', ttl: 2000, origin: 'org', expires: 2000
+        }],
         ['b'],
-        ['c', { value: 'xyz', expires: 2000 }],
+        ['c', {
+            key: 'c', value: 'xyz', ttl: 2000, origin: 'org', expires: 2000
+        }],
     ];
 
     const cache = new Cache();
@@ -652,9 +678,15 @@ tap.test('cache.load() - one entry is missing "values" - should set valid entrie
 
 tap.test('cache.load() - one entry is missing "values.value" - should set valid entries in cache', (t) => {
     const dump = [
-        ['a', { value: 'bar', expires: 2000 }],
-        ['b', { expires: 2000 }],
-        ['c', { value: 'xyz', expires: 2000 }],
+        ['a', {
+            key: 'a', value: 'bar', ttl: 2000, origin: 'org', expires: 2000
+        }],
+        ['b', {
+            key: 'b', ttl: 2000, origin: 'org', expires: 2000
+        }],
+        ['c', {
+            key: 'c', value: 'xyz', ttl: 2000, origin: 'org', expires: 2000
+        }],
     ];
 
     const cache = new Cache();
@@ -667,11 +699,17 @@ tap.test('cache.load() - one entry is missing "values.value" - should set valid 
     t.end();
 });
 
-tap.test('cache.load() - one entry is missing "values.expires" - should set valid entries in cache', (t) => {
+tap.test('cache.load() - one entry is missing "values.ttl" - should set valid entries in cache', (t) => {
     const dump = [
-        ['a', { value: 'bar', expires: 2000 }],
-        ['b', { value: 'foo' }],
-        ['c', { value: 'xyz', expires: 2000 }],
+        ['a', {
+            key: 'a', value: 'bar', ttl: 2000, origin: 'org', expires: 2000
+        }],
+        ['b', {
+            key: 'b', value: 'bar', origin: 'org'
+        }],
+        ['c', {
+            key: 'c', value: 'xyz', ttl: 2000, origin: 'org', expires: 2000
+        }],
     ];
 
     const cache = new Cache();
@@ -872,27 +910,6 @@ tap.test('_read() - pipe valid objects from cache - objects should be piped when
     cache.pipe(dest);
     cache.set('a', 'foo');
     cache.set('b', 'bar');
-
-    setImmediate(() => {
-        dest.end();
-    });
-});
-
-tap.test('_read() - pipe with "changefeed: true" - should emit changefeed objects', (t) => {
-    const cache = new Cache({ changefeed: true });
-    const dest = destStream((arr) => {
-        t.equal(arr[0].key, 'a');
-        t.equal(arr[0].value.newVal, 'foo');
-        t.equal(arr[0].value.oldVal, null);
-        t.equal(arr[1].key, 'a');
-        t.equal(arr[1].value.newVal, 'bar');
-        t.equal(arr[1].value.oldVal, 'foo');
-        t.end();
-    });
-
-    cache.pipe(dest);
-    cache.set('a', 'foo');
-    cache.set('a', 'bar');
 
     setImmediate(() => {
         dest.end();
