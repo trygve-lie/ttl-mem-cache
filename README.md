@@ -55,16 +55,16 @@ const cache = new Cache(options);
 
 An Object containing misc configuration. The following values can be provided:
 
- * maxAge - `Number` - Default max age in milliseconds all items in the cache should be cached before expiering.
+ * ttl - `Number` - Default time to live in milliseconds all items in the cache should be cached before expiering.
  * stale - `Boolean` - If expired items in cache should be returned when pruned from the cache. Default: `false`.
  * changelog - `Boolean` - If emitted `set` event and stream should contain both old and new value. Default: `false`.
  * id - `String` - Give the instanse a unique identifier. Default: `hash`
 
-If an option Object with a `maxAge` is not provided all items in the cache will by
-default cached for 5 minutes before they expire.
+If an option Object with a `ttl` is not provided all items in the cache will by default
+cached for 5 minutes before they expire.
 
-Items can be cached forever by setting `maxAge` to `Infinity`. Items cached forever
-can be overwritten and manually deleted.
+Items can be cached forever by setting `ttl` to `Infinity`. Items cached forever can
+be overwritten and manually deleted.
 
 Pruning of items from the cache happend when they are touched by one of the methods
 for retrieving (`.get()` and `.entries()`) items from the cache. By default pruning
