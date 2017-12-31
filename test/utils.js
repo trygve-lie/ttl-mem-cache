@@ -116,7 +116,13 @@ tap.test('utils.isFunction() - value is not a function - should return false', (
 });
 
 tap.test('utils.isFunction() - value is a function - should return true', (t) => {
-    t.true(utils.isFunction(function() {}));
-    t.true(utils.isFunction(() => {}));
+    const fn = function fn(x) {
+        return x;
+    };
+    const arr = (x) => {
+        return x;
+    };
+    t.true(utils.isFunction(fn));
+    t.true(utils.isFunction(arr));
     t.end();
 });
