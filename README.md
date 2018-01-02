@@ -326,10 +326,11 @@ console.log(cacheA.get('foo'), cacheB.get('foo'), cacheC.get('foo'));
 
 ### Streaming Object type
 
-When writing to the cache, one can control what goes into the cache etc by a dedicated Object type.
-When reading from the cache, the stream will output the same Object type.
+When using the Stream API to write to and read from the cache an [Entry Object](https://github.com/trygve-lie/ttl-mem-cache/blob/master/lib/entry.js)
+or an Object of simmilar character is used.
 
-The Object type looks like this:
+The [Entry Object](https://github.com/trygve-lie/ttl-mem-cache/blob/master/lib/entry.js)
+looks like this:
 
 ```js
 {
@@ -337,8 +338,20 @@ The Object type looks like this:
     value: 'item value',
     origin: 'cache instance ID',
     ttl: 'time to live',
-    expires: 'time stamp',
-    type: 'TtlMemCacheEntry'
+    expires: 'time stamp'
+}
+```
+
+The Stream API will always emit a full Entry Object. When writing to the Stream API one can provide
+a full Entry Object, but a simmilar Object will also be accepted. Only `key` and `value` are required
+properties when writing to the Stream API.
+
+Iow; the following Object will be accepted by the Stream API:
+
+```js
+{
+    key: 'foo',
+    value: 'bar'
 }
 ```
 
@@ -349,8 +362,15 @@ When writing to the cache and a Object with `value` with a value is provided, it
 the cache on the provided `key`. If `value` is not provided or `null` or `undefined` on the
 Object when writing to the cache, any item with a matching `key` in the cache will be deleted.
 
-When the stream emits objects each object will also have a `origin` key. The value is the unique
-ID of the instance the object first was emitted on the stream.
+When the stream emits objects each object will have a `origin` key. The value is the unique ID of
+the instance the object first was emitted on the stream. If the construcor was given a value for
+the `id` argument, this will be used as `origin` value.
+
+`ttl` is how long the item is set to live in the cache.
+
+`expires` is the calculated timestamp for when the item should expire from the cache. This is
+calculated when an item is set in the cache. If a value for `expires` is provided when writing
+to the Stream API this value will be set in the cache.
 
 If the items you want to store in the cache does not fit your data type, its recommended to use
 a [Transform Stream](https://nodejs.org/api/stream.html#stream_implementing_a_transform_stream)
@@ -374,6 +394,29 @@ const convert = new stream.Transform({
 });
 
 source.pipe(convert).pipe(cache);
+```
+
+The [Entry Object](https://github.com/trygve-lie/ttl-mem-cache/blob/master/lib/entry.js) does
+implement `.toPrimitive` where a stringified JSON representation of the Object will be returned
+when call to the Entry Object with a String hint is done.
+
+This can be used when one want to convert the Entry Object into a [Buffer](https://nodejs.org/api/buffer.html).
+
+```js
+const cache = new Cache();
+const dest = new SomeWritableStream();  // Some destination supporting Buffers
+
+const convert = new stream.Transform({
+    writableObjectMode: true,
+    readableObjectMode: false,
+    transform(obj, encoding, callback) {
+        const buff = Buffer.from(obj);  // Convert Entry Object to a Buffer
+        this.push(buff);
+        callback();
+    }
+});
+
+cache.pipe(convert).pipe(dest);
 ```
 
 

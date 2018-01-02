@@ -3,6 +3,7 @@
 const Entry = require('../lib/entry');
 const lolex = require('lolex');
 const tap = require('tap');
+const os = require('os');
 
 /**
  * Constructor
@@ -388,5 +389,55 @@ tap.test('.assertStrict() - Object literal without "ttl" - should return false',
 
 tap.test('.assertStrict() - No argument - should return false', (t) => {
     t.false(Entry.assertStrict());
+    t.end();
+});
+
+/**
+ * .assertStrict()
+ */
+
+tap.test('.toPrimitive() - Call entry as String - should return JSON representation of the entry object', (t) => {
+    const clock = lolex.install();
+    clock.tick(1000);
+
+    const entry = new Entry({
+        key: 'a',
+        value: 'foo',
+        ttl: 2000,
+        origin: 'source',
+    });
+
+    t.equal(`${entry}`, `{"key":"a","value":"foo","ttl":2000,"origin":"source","expires":3000,"type":"TtlMemCacheEntry"}${os.EOL}`);
+
+    clock.uninstall();
+    t.end();
+});
+
+tap.test('.toPrimitive() - Call entry as String - should have EOL at the end of String', (t) => {
+    const entry = new Entry({
+        key: 'a',
+        value: 'foo',
+        ttl: 2000,
+        origin: 'source',
+    });
+
+    const result = `${entry}`;
+
+    t.equal(result.split('}')[1], os.EOL);
+    t.end();
+});
+
+tap.test('.toPrimitive() - Call entry as a non String - should return default representation', (t) => {
+    const entry = new Entry({
+        key: 'a',
+        value: 'foo',
+        ttl: 2000,
+        origin: 'source',
+    });
+
+    const result = +entry; // Call it as a number
+
+    t.type(result, 'number'); // Return value is NaN which is a number
+    t.equal(result.toString(), 'NaN');
     t.end();
 });
