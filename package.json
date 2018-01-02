@@ -1,6 +1,6 @@
 {
   "name": "ttl-mem-cache",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "A in memory time to live cache with streaming support.",
   "main": "lib/cache.js",
   "directories": {
