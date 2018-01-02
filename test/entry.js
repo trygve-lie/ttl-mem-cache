@@ -435,7 +435,7 @@ tap.test('.toPrimitive() - Call entry as a non String - should return default re
         origin: 'source',
     });
 
-    const result = +entry;  // Call it as a number
+    const result = +entry; // Call it as a number
 
     t.type(result, 'number'); // Return value is NaN which is a number
     t.equal(result.toString(), 'NaN');
