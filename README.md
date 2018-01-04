@@ -77,6 +77,10 @@ used to tell the origin of an cached item when streaming. The `id` will override
 this generated ID. When using this, be carefull to not provide the same ID to multiple
 instances of the cache.
 
+The Cache instance inherit from Duplex Stream. Due to this the instance also take all
+config parameters which the Duplex Stream does. Please see the [documentation of Duplex Streams](https://nodejs.org/api/stream.html#stream_duplex_and_transform_streams)
+for further documentation.
+
 
 ## API
 
@@ -419,6 +423,15 @@ const convert = new stream.Transform({
 cache.pipe(convert).pipe(dest);
 ```
 
+### Object Mode
+
+By default the stream are in object mode. Its also supported to run the stream in non-object
+mode. Object mode can be turned off by setting `objectMode` to `false` as an option to the
+constructor.
+
+When using non-object mode the stream will emit `Buffers` containing a stringified JSON
+representaion of the Entry Object.
+
 
 
 ## Changelog
@@ -456,8 +469,8 @@ If a key hold a value which has expired and `stale` is `true`, `oldVal` will be 
 
 ## node.js compabillity
 
-This module use some native ES6 functions only found in node.js 6.x and newer.
-This module will not function with older than 6.x versions of node.js.
+This module is written in ES6 and uses some functions only found in node.js 8.2
+and newer. This module will not function with older than 8.2 versions of node.js.
 
 
 
