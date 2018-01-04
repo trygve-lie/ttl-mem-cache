@@ -5,23 +5,53 @@ const Cache = require('../');
 const lolex = require('lolex');
 const tap = require('tap');
 
-const srcStream = (arr) => {
+const srcObjectStream = (arr) => {
     return new stream.Readable({
         objectMode: true,
         read() {
-            arr.forEach((el) => {
-                this.push(el);
+            arr.forEach((item) => {
+                this.push(item);
             });
             this.push(null);
         }
     });
 };
 
-const destStream = (done) => {
+const srcBufferStream = (arr) => {
+    return new stream.Readable({
+        objectMode: false,
+        read() {
+            arr.forEach((item) => {
+                this.push(item);
+            });
+            this.push(null);
+        }
+    });
+};
+
+const destObjectStream = (done) => {
     const arr = [];
 
     const dStream = new stream.Writable({
         objectMode: true,
+        write(chunk, encoding, callback) {
+            arr.push(chunk);
+            callback();
+        }
+    });
+
+    dStream.on('finish', () => {
+        done(arr);
+    });
+
+    return dStream;
+};
+
+const destBufferStream = (done) => {
+    const arr = [];
+
+    const dStream = new stream.Writable({
+        objectMode: false,
         write(chunk, encoding, callback) {
             arr.push(chunk);
             callback();
@@ -788,12 +818,12 @@ tap.test('cache.length() - no entries in cache - should return 0', (t) => {
 
 
 /**
- * ._write() - Stream
+ * ._write() - Stream - objectMode: true
  */
 
-tap.test('_write() - pipe valid objects to cache - objects should be set in cache', (t) => {
+tap.test('_write() - objectMode: true - pipe valid objects to cache - objects should be set in cache', (t) => {
     const cache = new Cache();
-    const src = srcStream([{ key: 'a', value: 'foo' }, { key: 'b', value: 'bar' }]);
+    const src = srcObjectStream([{ key: 'a', value: 'foo' }, { key: 'b', value: 'bar' }]);
 
     src.on('end', () => {
         t.equal(cache.get('a'), 'foo');
@@ -804,13 +834,12 @@ tap.test('_write() - pipe valid objects to cache - objects should be set in cach
     src.pipe(cache);
 });
 
-
-tap.test('_write() - pipe object without "value" - should remove object from cache', (t) => {
+tap.test('_write() - objectMode: true - pipe object without "value" - should remove object from cache', (t) => {
     const cache = new Cache();
     cache.set('a', 'bar');
     cache.set('b', 'foo');
     cache.set('c', 'xyz');
-    const src = srcStream([{ key: 'a' }]);
+    const src = srcObjectStream([{ key: 'a' }]);
 
     cache.on('dispose', (key) => {
         t.equal(key, 'a');
@@ -821,13 +850,12 @@ tap.test('_write() - pipe object without "value" - should remove object from cac
     src.pipe(cache);
 });
 
-
-tap.test('_write() - pipe object where "value" is "null" - should remove object from cache', (t) => {
+tap.test('_write() - objectMode: true - pipe object where "value" is "null" - should remove object from cache', (t) => {
     const cache = new Cache();
     cache.set('a', 'bar');
     cache.set('b', 'foo');
     cache.set('c', 'xyz');
-    const src = srcStream([{ key: 'a', value: null }]);
+    const src = srcObjectStream([{ key: 'a', value: null }]);
 
     cache.on('dispose', (key) => {
         t.equal(key, 'a');
@@ -838,13 +866,12 @@ tap.test('_write() - pipe object where "value" is "null" - should remove object 
     src.pipe(cache);
 });
 
-
-tap.test('_write() - pipe object where "value" is "undefined" - should remove object from cache', (t) => {
+tap.test('_write() - objectMode: true - pipe object where "value" is "undefined" - should remove object from cache', (t) => {
     const cache = new Cache();
     cache.set('a', 'bar');
     cache.set('b', 'foo');
     cache.set('c', 'xyz');
-    const src = srcStream([{ key: 'a', value: undefined }]);
+    const src = srcObjectStream([{ key: 'a', value: undefined }]);
 
     cache.on('dispose', (key) => {
         t.equal(key, 'a');
@@ -855,9 +882,9 @@ tap.test('_write() - pipe object where "value" is "undefined" - should remove ob
     src.pipe(cache);
 });
 
-tap.test('_write() - pipe object without "key" - should emit error and not write object to cache', (t) => {
+tap.test('_write() - objectMode: true - pipe object without "key" - should emit error and not write object to cache', (t) => {
     const cache = new Cache();
-    const src = srcStream([{ id: 'a', value: 'foo' }]);
+    const src = srcObjectStream([{ id: 'a', value: 'foo' }]);
 
     cache.on('error', (error) => {
         t.equal(error.message, 'Object does not contain a "key" property or the value for "key" is null or undefined');
@@ -868,9 +895,9 @@ tap.test('_write() - pipe object without "key" - should emit error and not write
     src.pipe(cache);
 });
 
-tap.test('_write() - pipe object where "key" is "null" - should emit error and not write object to cache', (t) => {
+tap.test('_write() - objectMode: true - pipe object where "key" is "null" - should emit error and not write object to cache', (t) => {
     const cache = new Cache();
-    const src = srcStream([{ key: null, value: 'foo' }]);
+    const src = srcObjectStream([{ key: null, value: 'foo' }]);
 
     cache.on('error', () => {
         t.equal(cache.get('a'), null);
@@ -880,9 +907,9 @@ tap.test('_write() - pipe object where "key" is "null" - should emit error and n
     src.pipe(cache);
 });
 
-tap.test('_write() - pipe object where "key" is "undefined" - should emit error and not write object to cache', (t) => {
+tap.test('_write() - objectMode: true - pipe object where "key" is "undefined" - should emit error and not write object to cache', (t) => {
     const cache = new Cache();
-    const src = srcStream([{ key: undefined, value: 'foo' }]);
+    const src = srcObjectStream([{ key: undefined, value: 'foo' }]);
 
     cache.on('error', () => {
         t.equal(cache.get('a'), null);
@@ -891,15 +918,84 @@ tap.test('_write() - pipe object where "key" is "undefined" - should emit error 
 
     src.pipe(cache);
 });
+
 
 
 /**
- * ._read() - Stream
+ * ._write() - Stream - objectMode: false
  */
 
-tap.test('_read() - pipe valid objects from cache - objects should be piped when set', (t) => {
+tap.test('_write() - objectMode: false - pipe valid objects to cache - objects should be set in cache', (t) => {
+    const cache = new Cache({ objectMode: false });
+    const src = srcObjectStream([
+        Buffer.from(JSON.stringify({ key: 'a', value: 'foo' })),
+        Buffer.from(JSON.stringify({ key: 'b', value: 'bar' })),
+    ]);
+
+    src.on('end', () => {
+        t.equal(cache.get('a'), 'foo');
+        t.equal(cache.get('b'), 'bar');
+        t.end();
+    });
+
+    src.pipe(cache);
+});
+
+tap.test('_write() - objectMode: false - pipe object without "value" - should remove object from cache', (t) => {
+    const cache = new Cache({ objectMode: false });
+    cache.set('a', 'bar');
+    cache.set('b', 'foo');
+    cache.set('c', 'xyz');
+    const src = srcObjectStream([
+        Buffer.from(JSON.stringify({ key: 'a' }))
+    ]);
+
+    cache.on('dispose', (key) => {
+        t.equal(key, 'a');
+        t.equal(cache.get('a'), null);
+        t.end();
+    });
+
+    src.pipe(cache);
+});
+
+tap.test('_write() - objectMode: false - pipe buffer containing non compatible JSON - should emit error and not write object to cache', (t) => {
+    const cache = new Cache({ objectMode: false });
+    const src = srcBufferStream([
+        Buffer.from(JSON.stringify({ key: undefined, value: 'foo' }))
+    ]);
+
+    cache.on('error', () => {
+        t.equal(cache.get('a'), null);
+        t.end();
+    });
+
+    src.pipe(cache);
+});
+
+tap.test('_write() - objectMode: false - pipe buffer non JSON string - should emit error and not write object to cache', (t) => {
+    const cache = new Cache({ objectMode: false });
+    const src = srcBufferStream([
+        Buffer.from('foo')
+    ]);
+
+    cache.on('error', () => {
+        t.equal(cache.get('a'), null);
+        t.end();
+    });
+
+    src.pipe(cache);
+});
+
+
+
+/**
+ * ._read() - Stream - objectMode: true
+ */
+
+tap.test('_read() - objectMode: true - pipe valid objects from cache - objects should be piped when set', (t) => {
     const cache = new Cache();
-    const dest = destStream((arr) => {
+    const dest = destObjectStream((arr) => {
         t.equal(arr[0].key, 'a');
         t.equal(arr[0].value, 'foo');
         t.equal(arr[1].key, 'b');
@@ -916,7 +1012,7 @@ tap.test('_read() - pipe valid objects from cache - objects should be piped when
     });
 });
 
-tap.test('_read() - set item when no stream is attached to Readable stream - should be no items in internal stream buffer', (t) => {
+tap.test('_read() - objectMode: true - set item when no stream is attached to Readable stream - should be no items in internal stream buffer', (t) => {
     const cache = new Cache();
     cache.set('a', 'foo');
     cache.set('a', 'bar');
@@ -925,14 +1021,42 @@ tap.test('_read() - set item when no stream is attached to Readable stream - sho
 });
 
 
+
 /**
- * ._write().pipe(_read()) - Stream
+ * ._read() - Stream - objectMode: false
  */
 
-tap.test('._write().pipe(_read()) - pipe valid objects through cache - objects should be piped through and stored in cache', (t) => {
+tap.test('_read() - objectMode: false - pipe valid objects from cache - objects should be piped when set', (t) => {
+    const cache = new Cache({ objectMode: false });
+    const dest = destBufferStream((arr) => {
+        const item0 = JSON.parse(arr[0].toString());
+        const item1 = JSON.parse(arr[1].toString());
+        t.equal(item0.key, 'a');
+        t.equal(item0.value, 'foo');
+        t.equal(item1.key, 'b');
+        t.equal(item1.value, 'bar');
+        t.end();
+    });
+
+    cache.pipe(dest);
+    cache.set('a', 'foo');
+    cache.set('b', 'bar');
+
+    setImmediate(() => {
+        dest.end();
+    });
+});
+
+
+
+/**
+ * ._write().pipe(_read()) - Stream - objectMode: true
+ */
+
+tap.test('._write().pipe(_read()) - objectMode: true - pipe valid objects through cache - objects should be piped through and stored in cache', (t) => {
     const cache = new Cache();
-    const src = srcStream([{ key: 'a', value: 'foo' }, { key: 'b', value: 'bar' }, { key: 'c', value: 'xyz' }]);
-    const dest = destStream((arr) => {
+    const src = srcObjectStream([{ key: 'a', value: 'foo' }, { key: 'b', value: 'bar' }, { key: 'c', value: 'xyz' }]);
+    const dest = destObjectStream((arr) => {
         t.equal(arr[0].key, 'a');
         t.equal(arr[0].value, 'foo');
         t.equal(arr[1].key, 'b');
@@ -952,7 +1076,7 @@ tap.test('._write().pipe(_read()) - pipe valid objects through cache - objects s
     });
 });
 
-tap.test('._write().pipe(_read()) - circular pipe - set item - objects should be set in all caches', (t) => {
+tap.test('._write().pipe(_read()) - objectMode: true - circular pipe - set item - objects should be set in all caches', (t) => {
     const cacheA = new Cache();
     const cacheB = new Cache();
     const cacheC = new Cache();
@@ -970,11 +1094,61 @@ tap.test('._write().pipe(_read()) - circular pipe - set item - objects should be
     });
 });
 
-tap.test('._write().pipe(_read()) - circular pipe - del item - objects should be removed from all caches', (t) => {
+tap.test('._write().pipe(_read()) - objectMode: true - circular pipe - del item - objects should be removed from all caches', (t) => {
     const cacheA = new Cache();
     const cacheB = new Cache();
     const cacheC = new Cache();
     const cacheD = new Cache();
+
+    cacheA.pipe(cacheB).pipe(cacheC).pipe(cacheD).pipe(cacheA);
+
+    cacheB.set('a', 'foo');
+    cacheA.on('set', () => {
+        t.equal(cacheA.get('a'), 'foo');
+        t.equal(cacheB.get('a'), 'foo');
+        t.equal(cacheC.get('a'), 'foo');
+        t.equal(cacheD.get('a'), 'foo');
+        cacheD.del('a');
+    });
+
+    cacheC.on('dispose', () => {
+        t.equal(cacheA.get('a'), null);
+        t.equal(cacheB.get('a'), null);
+        t.equal(cacheC.get('a'), null);
+        t.equal(cacheD.get('a'), null);
+        t.end();
+    });
+});
+
+
+
+/**
+ * ._write().pipe(_read()) - Stream - objectMode: false
+ */
+
+tap.test('._write().pipe(_read()) - objectMode: false - circular pipe - set item - objects should be set in all caches', (t) => {
+    const cacheA = new Cache({ objectMode: false });
+    const cacheB = new Cache({ objectMode: false });
+    const cacheC = new Cache({ objectMode: false });
+    const cacheD = new Cache({ objectMode: false });
+
+    cacheA.pipe(cacheB).pipe(cacheC).pipe(cacheD).pipe(cacheA);
+
+    cacheB.set('a', 'foo');
+    cacheA.on('set', () => {
+        t.equal(cacheA.get('a'), 'foo');
+        t.equal(cacheB.get('a'), 'foo');
+        t.equal(cacheC.get('a'), 'foo');
+        t.equal(cacheD.get('a'), 'foo');
+        t.end();
+    });
+});
+
+tap.test('._write().pipe(_read()) - objectMode: false - circular pipe - del item - objects should be removed from all caches', (t) => {
+    const cacheA = new Cache({ objectMode: false });
+    const cacheB = new Cache({ objectMode: false });
+    const cacheC = new Cache({ objectMode: false });
+    const cacheD = new Cache({ objectMode: false });
 
     cacheA.pipe(cacheB).pipe(cacheC).pipe(cacheD).pipe(cacheA);
 
