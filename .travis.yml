@@ -1,18 +1,16 @@
-sudo: required
-
 language: node_js
 
 node_js:
   - "10"
   - "8"
 
+script:
+  - npm test
+
 jobs:
   fast_finish: true
 
   include:
-    -
-      script:
-        - npm test
 
     # Nightlies
     - stage: Node.js pre-releases
