@@ -4,5 +4,14 @@ node_js:
   - "10"
   - "8"
 
-script:
-  - npm test
+jobs:
+  fast_finish: true
+
+  include:
+    -
+      script:
+        - npm test
+
+notifications:
+  email:
+    - post@trygve-lie.com
