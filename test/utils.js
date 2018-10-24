@@ -1,8 +1,8 @@
 'use strict';
 
-const utils = require('../lib/utils');
 const lolex = require('lolex');
 const tap = require('tap');
+const utils = require('../lib/utils');
 
 /**
  * .calculateExpire()

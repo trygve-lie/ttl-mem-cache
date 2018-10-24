@@ -1,9 +1,9 @@
 'use strict';
 
-const Entry = require('../lib/entry');
 const lolex = require('lolex');
 const tap = require('tap');
 const os = require('os');
+const Entry = require('../lib/entry');
 
 /**
  * Constructor
