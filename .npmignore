@@ -1,6 +1,12 @@
 node_modules
+.nyc_output/
+benchmark/
+test/
 *.log
+*.png
+*.svg
 .gitignore
 .npmignore
 .eslintrc
+.eslintignore
 .travis.yml
