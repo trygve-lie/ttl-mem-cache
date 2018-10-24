@@ -1,9 +1,9 @@
 'use strict';
 
 const stream = require('stream');
-const Cache = require('../');
 const lolex = require('lolex');
 const tap = require('tap');
+const Cache = require('../');
 
 const srcObjectStream = (arr) => {
     return new stream.Readable({
