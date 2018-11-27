@@ -2,7 +2,10 @@
 
 A in memory time to live cache with streaming support.
 
-[![Dependencies](https://img.shields.io/david/trygve-lie/ttl-mem-cache.svg?style=flat-square)](https://david-dm.org/trygve-lie/ttl-mem-cache)[![Build Status](http://img.shields.io/travis/trygve-lie/ttl-mem-cache/master.svg?style=flat-square)](https://travis-ci.org/trygve-lie/ttl-mem-cache) [![Greenkeeper badge](https://badges.greenkeeper.io/trygve-lie/ttl-mem-cache.svg)](https://greenkeeper.io/)
+[![Dependencies](https://img.shields.io/david/trygve-lie/ttl-mem-cache.svg?style=flat-square)](https://david-dm.org/trygve-lie/ttl-mem-cache)
+[![Build Status](http://img.shields.io/travis/trygve-lie/ttl-mem-cache/master.svg?style=flat-square)](https://travis-ci.org/trygve-lie/ttl-mem-cache)
+[![Greenkeeper badge](https://badges.greenkeeper.io/trygve-lie/ttl-mem-cache.svg?style=flat-square)](https://greenkeeper.io/)
+[![Known Vulnerabilities](https://snyk.io/test/github/trygve-lie/ttl-mem-cache/badge.svg?targetFile=package.json&style=flat-square)](https://snyk.io/test/github/trygve-lie/ttl-mem-cache?targetFile=package.json)
 
 
 
