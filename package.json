@@ -39,6 +39,6 @@
     "eslint-plugin-import": "2.14.0",
     "benchmark": "2.1.4",
     "lolex": "3.0.0",
-    "tap": "12.1.0"
+    "tap": "12.1.1"
   }
 }
