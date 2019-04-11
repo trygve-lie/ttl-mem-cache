@@ -1169,3 +1169,84 @@ tap.test('._write().pipe(_read()) - objectMode: false - circular pipe - del item
         t.end();
     });
 });
+
+tap.test(
+    '.pipe() - exceed the default, 10, number of max event listeners - should not cause the process to emit a MaxListenersExceededWarning',
+    (t) => {
+        const cacheA = new Cache();
+        const cacheB = new Cache();
+        const cacheC = new Cache();
+        const cacheD = new Cache();
+        const cacheE = new Cache();
+        const cacheF = new Cache();
+        const cacheG = new Cache();
+        const cacheH = new Cache();
+        const cacheI = new Cache();
+        const cacheJ = new Cache();
+        const cacheK = new Cache();
+        const cacheL = new Cache();
+        const cacheM = new Cache();
+        const cacheN = new Cache();
+
+        const cacheX = new Cache();
+
+        process.on('warning', (warning) => {
+            if (warning.name === 'MaxListenersExceededWarning') {
+                t.fail();
+            }
+        });
+
+        const dest = destObjectStream((result) => {
+            t.equal(result.length, 14);
+            t.end();
+        });
+
+        cacheA.on('error', (error) => { console.log('a error', error); });
+        cacheB.on('error', (error) => { console.log('b error', error); });
+        cacheC.on('error', (error) => { console.log('c error', error); });
+        cacheD.on('error', (error) => { console.log('d error', error); });
+        cacheE.on('error', (error) => { console.log('e error', error); });
+        cacheF.on('error', (error) => { console.log('f error', error); });
+        cacheG.on('error', (error) => { console.log('g error', error); });
+        cacheH.on('error', (error) => { console.log('h error', error); });
+        cacheI.on('error', (error) => { console.log('i error', error); });
+        cacheJ.on('error', (error) => { console.log('j error', error); });
+        cacheK.on('error', (error) => { console.log('k error', error); });
+        cacheL.on('error', (error) => { console.log('l error', error); });
+        cacheM.on('error', (error) => { console.log('m error', error); });
+        cacheN.on('error', (error) => { console.log('n error', error); });
+        cacheX.on('error', (error) => { console.log('x error', error); });
+
+        cacheA.pipe(cacheX);
+        cacheB.pipe(cacheX);
+        cacheC.pipe(cacheX);
+        cacheD.pipe(cacheX);
+        cacheE.pipe(cacheX);
+        cacheF.pipe(cacheX);
+        cacheG.pipe(cacheH).pipe(cacheI).pipe(cacheJ).pipe(cacheX);
+        cacheK.pipe(cacheX);
+        cacheL.pipe(cacheM).pipe(cacheX);
+        cacheN.pipe(cacheX);
+
+        cacheX.pipe(dest);
+
+        cacheA.set('a_test', { name: 'a_test', description: '.' });
+        cacheB.set('b_test', { name: 'b_test', description: '.' });
+        cacheC.set('c_test', { name: 'c_test', description: '.' });
+        cacheD.set('d_test', { name: 'd_test', description: '.' });
+        cacheE.set('e_test', { name: 'e_test', description: '.' });
+        cacheF.set('f_test', { name: 'f_test', description: '.' });
+        cacheG.set('g_test', { name: 'g_test', description: '.' });
+        cacheH.set('h_test', { name: 'h_test', description: '.' });
+        cacheI.set('i_test', { name: 'i_test', description: '.' });
+        cacheJ.set('j_test', { name: 'j_test', description: '.' });
+        cacheK.set('k_test', { name: 'k_test', description: '.' });
+        cacheL.set('l_test', { name: 'l_test', description: '.' });
+        cacheM.set('m_test', { name: 'm_test', description: '.' });
+        cacheN.set('n_test', { name: 'n_test', description: '.' });
+
+        setImmediate(() => {
+            dest.end();
+        });
+    },
+);
