@@ -34,7 +34,7 @@
   },
   "homepage": "https://github.com/trygve-lie/ttl-mem-cache#readme",
   "devDependencies": {
-    "eslint": "6.0.0",
+    "eslint": "6.0.1",
     "eslint-config-airbnb-base": "13.1.0",
     "eslint-plugin-import": "2.17.3",
     "benchmark": "2.1.4",
