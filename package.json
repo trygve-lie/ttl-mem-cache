@@ -38,7 +38,7 @@
     "eslint-config-airbnb-base": "14.0.0",
     "eslint-plugin-import": "2.18.2",
     "benchmark": "2.1.4",
-    "tap": "14.6.7",
+    "tap": "14.6.8",
     "lolex": "4.2.0"
   },
   "dependencies": {
