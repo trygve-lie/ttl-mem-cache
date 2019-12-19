@@ -39,7 +39,7 @@
     "eslint-plugin-import": "2.18.2",
     "benchmark": "2.1.4",
     "tap": "14.8.2",
-    "lolex": "5.1.1"
+    "lolex": "5.1.2"
   },
   "dependencies": {
     "readable-stream": "^3.3.0"
