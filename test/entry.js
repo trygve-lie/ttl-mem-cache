@@ -155,7 +155,7 @@ tap.test('.expired() - expire time is in front of now - should return "false"', 
 
     clock.tick(1000);
 
-    t.false(entry.expired());
+    t.notOk(entry.expired());
 
     clock.uninstall();
     t.end();
@@ -173,7 +173,7 @@ tap.test('.expired() - expire time is behind of now - should return "true"', (t)
 
     clock.tick(4000);
 
-    t.true(entry.expired());
+    t.ok(entry.expired());
 
     clock.uninstall();
     t.end();
@@ -191,7 +191,7 @@ tap.test('.expired() - "now" argument is provided - expire time is in front of n
 
     clock.tick(4000);
 
-    t.false(entry.expired(1000));
+    t.notOk(entry.expired(1000));
 
     clock.uninstall();
     t.end();
@@ -209,7 +209,7 @@ tap.test('.expired() - "now" argument is provided - expire time is behind of now
 
     clock.tick(1000);
 
-    t.true(entry.expired(4000));
+    t.ok(entry.expired(4000));
 
     clock.uninstall();
     t.end();
@@ -286,7 +286,7 @@ tap.test('.assertLoose() - Entry object - should return true', (t) => {
         ttl: 2000,
         origin: 'source',
     });
-    t.true(Entry.assertLoose(entry));
+    t.ok(Entry.assertLoose(entry));
     t.end();
 });
 
@@ -297,7 +297,7 @@ tap.test('.assertLoose() - Object literal with "key" and "value" - should return
         ttl: 2000,
         origin: 'source',
     };
-    t.true(Entry.assertLoose(entry));
+    t.ok(Entry.assertLoose(entry));
     t.end();
 });
 
@@ -307,7 +307,7 @@ tap.test('.assertLoose() - Object literal without "key" - should return false', 
         ttl: 2000,
         origin: 'source',
     };
-    t.false(Entry.assertLoose(entry));
+    t.notOk(Entry.assertLoose(entry));
     t.end();
 });
 
@@ -317,17 +317,17 @@ tap.test('.assertLoose() - Object literal without "value" - should return false'
         ttl: 2000,
         origin: 'source',
     };
-    t.false(Entry.assertLoose(entry));
+    t.notOk(Entry.assertLoose(entry));
     t.end();
 });
 
 tap.test('.assertLoose() - Object literal without "key" and "value" - should return false', (t) => {
-    t.false(Entry.assertLoose({}));
+    t.notOk(Entry.assertLoose({}));
     t.end();
 });
 
 tap.test('.assertLoose() - No argument - should return false', (t) => {
-    t.false(Entry.assertLoose());
+    t.notOk(Entry.assertLoose());
     t.end();
 });
 
@@ -342,7 +342,7 @@ tap.test('.assertStrict() - x - should return true', (t) => {
         ttl: 2000,
         origin: 'source',
     });
-    t.true(Entry.assertStrict(entry));
+    t.ok(Entry.assertStrict(entry));
     t.end();
 });
 
@@ -353,7 +353,7 @@ tap.test('.assertStrict() - Object literal with "key", "value" and "ttl" - shoul
         ttl: 2000,
         origin: 'source',
     };
-    t.true(Entry.assertStrict(entry));
+    t.ok(Entry.assertStrict(entry));
     t.end();
 });
 
@@ -363,7 +363,7 @@ tap.test('.assertStrict() - Object literal without "key" - should return false',
         ttl: 2000,
         origin: 'source',
     };
-    t.false(Entry.assertStrict(entry));
+    t.notOk(Entry.assertStrict(entry));
     t.end();
 });
 
@@ -373,7 +373,7 @@ tap.test('.assertStrict() - Object literal without "value" - should return false
         ttl: 2000,
         origin: 'source',
     };
-    t.false(Entry.assertStrict(entry));
+    t.notOk(Entry.assertStrict(entry));
     t.end();
 });
 
@@ -383,12 +383,12 @@ tap.test('.assertStrict() - Object literal without "ttl" - should return false',
         value: 'foo',
         origin: 'source',
     };
-    t.false(Entry.assertStrict(entry));
+    t.notOk(Entry.assertStrict(entry));
     t.end();
 });
 
 tap.test('.assertStrict() - No argument - should return false', (t) => {
-    t.false(Entry.assertStrict());
+    t.notOk(Entry.assertStrict());
     t.end();
 });
 

@@ -3,7 +3,7 @@
 const stream = require('readable-stream');
 const lolex = require('lolex');
 const tap = require('tap');
-const Cache = require('../');
+const Cache = require('..');
 
 const srcObjectStream = (arr) => {
     return new stream.Readable({
@@ -559,7 +559,7 @@ tap.test('cache.dump() - dump cache - should return Array with all entries', (t)
 
     const dump = cache.dump();
 
-    t.true(Array.isArray(dump));
+    t.ok(Array.isArray(dump));
     t.equal(dump.length, 2);
     t.end();
 });
