@@ -1,3 +1,10 @@
+## [4.1.3](https://github.com/trygve-lie/ttl-mem-cache/compare/v4.1.2...v4.1.3) (2023-05-02)
+
+
+### Bug Fixes
+
+* Bump version ([5e45f21](https://github.com/trygve-lie/ttl-mem-cache/commit/5e45f21cfd3cf734f990df5c38798cdca0876812))
+
 ## [4.1.2](https://github.com/trygve-lie/ttl-mem-cache/compare/v4.1.1...v4.1.2) (2023-05-02)
 
 
