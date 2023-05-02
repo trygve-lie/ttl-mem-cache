@@ -1,7 +1,7 @@
 'use strict';
 
 const benchmark = require('benchmark');
-const Cache = require('../');
+const Cache = require('..');
 
 const suite = new benchmark.Suite();
 
