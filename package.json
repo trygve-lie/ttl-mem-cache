@@ -39,7 +39,10 @@
     "eslint-plugin-import": "2.27.5",
     "benchmark": "2.1.4",
     "tap": "16.3.4",
-    "lolex": "6.0.0"
+    "lolex": "6.0.0",
+    "@semantic-release/changelog": "6.0.3",
+    "@semantic-release/git": "10.0.1",
+    "semantic-release": "21.0.2"
   },
   "dependencies": {
     "readable-stream": "4.3.0"
