@@ -2,11 +2,8 @@
 
 A in memory time to live cache with streaming support.
 
-[![Dependencies](https://img.shields.io/david/trygve-lie/ttl-mem-cache.svg?style=flat-square)](https://david-dm.org/trygve-lie/ttl-mem-cache)
-[![Build Status](http://img.shields.io/travis/trygve-lie/ttl-mem-cache/master.svg?style=flat-square)](https://travis-ci.org/trygve-lie/ttl-mem-cache)
-[![Greenkeeper badge](https://badges.greenkeeper.io/trygve-lie/ttl-mem-cache.svg?style=flat-square)](https://greenkeeper.io/)
+[![GitHub Actions status](https://github.com/trygve-lie/ttl-mem-cache/workflows/test/badge.svg)](https://github.com/trygve-lie/ttl-mem-cache/actions?query=workflow%3A%22test%22)
 [![Known Vulnerabilities](https://snyk.io/test/github/trygve-lie/ttl-mem-cache/badge.svg?targetFile=package.json&style=flat-square)](https://snyk.io/test/github/trygve-lie/ttl-mem-cache?targetFile=package.json)
-
 
 
 ## Installation
@@ -14,7 +11,6 @@ A in memory time to live cache with streaming support.
 ```bash
 $ npm install ttl-mem-cache
 ```
-
 
 
 ## Example
@@ -31,7 +27,6 @@ const obj = cache.get('a'); // returns {foo: 'bar'}
 ```
 
 
-
 ## Description
 
 This is a in memory time to live key/value cache with streaming support. Items are
@@ -42,7 +37,6 @@ There is no restrictions on the values stored in the cache and there is no maxim
 of the amount of items in the cache. Whan that is said, the intention of this module is
 to act as a simple key/value cache where one need to cache small to medium amounts of
 data.
-
 
 
 ## Constructor
@@ -262,7 +256,6 @@ cache.del('a');
 When the cache is cleared.
 
 
-
 ## Streams
 
 The Cache instance is a [Duplex Stream](https://nodejs.org/api/stream.html#stream_duplex_and_transform_streams). One can stream
@@ -436,7 +429,6 @@ When using non-object mode the stream will emit `Buffers` containing a stringifi
 representaion of the Entry Object.
 
 
-
 ## Changelog
 
 If the attribute `changelog` is set to `true` on the constructor, the `set` events will emit an
@@ -469,14 +461,6 @@ If a key hold a value which has expired and `stale` is `false`, `oldVal` will be
 If a key hold a value which has expired and `stale` is `true`, `oldVal` will be the old value.
 
 
-
-## node.js compabillity
-
-This module is written in ES6 and uses some functions only found in node.js 8.2
-and newer. This module will not function with older than 8.2 versions of node.js.
-
-
-
 ## error handling
 
 This module does not handle errors for you, so you must handle errors on
@@ -485,7 +469,6 @@ programming with node.js streams: always handle errors on each and every stream.
 
 We recommend using [`end-of-stream`](https://npmjs.org/end-of-stream) or [`pump`](https://npmjs.org/pump)
 for writing error tolerant stream code.
-
 
 
 ## License
